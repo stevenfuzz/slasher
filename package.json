@@ -1,0 +1,29 @@
+{
+  "name": "slashr",
+  "version": "0.1.0",
+  "description": "An insync model/controller node api framework. ",
+  "main": "slashr.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevenfuzz/slashr.git"
+  },
+  "keywords": [
+    "node",
+    "api",
+    "framework",
+    "async",
+    "await",
+    "model",
+    "controller",
+    "domain"
+  ],
+  "author": "Steven Fuzz <stevenfuzz@gmail.com> (http://slashr.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stevenfuzz/slashr/issues"
+  },
+  "homepage": "https://github.com/stevenfuzz/slashr#readme"
+}
