@@ -17,9 +17,8 @@ module.exports = class slashrController{
 		if(! actionOptions.action) throw("Unable to find controller options. No action found.");
 
 		// Include the controller
-		console.log("TODO: SETUP CONFIG FOR APPPATH!!!!!!!!!!!!!!!");
-		let appPath = "../../../";
-		let controllerClass = require(appPath+"controllers/"+actionOptions.controller+"Controller");
+		let appPath = global.slashr.config().rootDir;
+		let controllerClass = require(appPath+"/controllers/"+actionOptions.controller+"Controller");
 
 		// Add context to the controller class
 		let slashrComponentModel = require("../model/slashrComponentModel");

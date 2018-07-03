@@ -11,11 +11,10 @@ module.exports = class slashrDomainInstanceFactory{
 				}
 
 				// Include the domain
-				console.log("FIX APPPATCH AND REMOVE GLOBAL CALL");
-				let appPath = "../../../";
+				let appPath = global.slashr.config().rootDir;
 				let util = require("util");
 				
-				let domainClass = require(appPath+"models/domains/"+prop+"Domain");
+				let domainClass = require(appPath+"/models/domains/"+prop+"Domain");
 
 				const actionExtend = {
 					model : global.slashr.model(),

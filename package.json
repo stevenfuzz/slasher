@@ -25,5 +25,11 @@
   "bugs": {
     "url": "https://github.com/stevenfuzz/slashr/issues"
   },
-  "homepage": "https://github.com/stevenfuzz/slashr#readme"
+  "homepage": "https://github.com/stevenfuzz/slashr#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "md5": "^2.2.1",
+    "mysql": "^2.15.0",
+    "redis": "^2.8.0"
+  }
 }

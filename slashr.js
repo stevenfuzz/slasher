@@ -8,7 +8,7 @@ const slashr = class slashr{
 		};
 		if(! config) throw("Unable to instantiate slarshr. No config found.");
 		let slashrUtilities = require("./slashrUtilities");
-//		let slashrConfig = require("./shashrConfig");
+//		let slashrConfig = require("./slashrConfig");
 		let slashrController = require("./controller/slashrController");
 		let slashrModel = require("./model/slashrModel");
 		this.utilities = this.utils = new slashrUtilities();
