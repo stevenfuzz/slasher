@@ -21,6 +21,7 @@ const slashr = class slashr{
 		const express = require('express');
 		const bodyParser = require('body-parser');
 		const path = require('path');
+		const formidable = require('express-formidable');
 		
 		console.log("MOVE ALL OF THIS TO CONTROLLER");
 
@@ -37,16 +38,13 @@ const slashr = class slashr{
 			res.header("Access-Control-Allow-Origin", "*");
 			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 			res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-			console.log("TODO: Fix for cross origin options, should it be removed?");
 			if (req.method === 'OPTIONS') res.sendStatus(200);
 			else next();
 		});
 		
 		this._metadata.listener.use(bodyParser.json());
 		this._metadata.listener.use(bodyParser.urlencoded({ extended: true }));
-		
-		
-		
+		this._metadata.listener.use(formidable());
 		
 		const routes = {
 			feed : {
@@ -62,7 +60,6 @@ const slashr = class slashr{
 		}
 		
 		let routeFn = async (req, res, route) => {
-			
 			if(! route){
 				route = {
 					'controller' : (req.params.controller || "default"),
@@ -87,6 +84,9 @@ const slashr = class slashr{
 				let actionRoutes = routes[controller][action].routes || {default:routes[controller][action].route};
 				for(let routeKey in actionRoutes){
 					this._metadata.listener.all(actionRoutes[routeKey], (req, res) => {
+						console.log("SLDKJFLSDKJFLKSJDFLKJSDLFKJSLDKFJH");
+						console.log("asdfasdfasdf",req);
+						
 						routeFn(req, res, {
 							controller: controller,
 							action : action,

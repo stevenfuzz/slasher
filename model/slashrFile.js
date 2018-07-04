@@ -3,6 +3,7 @@ class slashrFile{
 	__construct(storage, options = array()){
 		this._metadata.storage = storage;
 		this._metadata.file = {};
+		this._metadata.object = {};
 		this._metadata.isInitialized = false;
 		this._metadata.entity = new slashrEntity("files");
 		this._metadata.parent = null;
@@ -17,36 +18,36 @@ class slashrFile{
 	/*
 	 * Populate the metadata by array
 	 */
-	populate(values){
+	populate(file){
+
+		this._metadata.object = file;
+
 		// TODO Validate populated data
 		let utils = global.slashr.utils();
 		// reset the data
-		this._metadata.file.add(values);
+		this.setName(values.name);
 		let name = this.getName();
 		
 		// Look for the true mimetype
-		if(! empty(this._metadata.file.tmp_name)){
-			let tType = mime_content_type(this._metadata.file.tmp_name);
-			if(! empty(tType)){
-				this.setType(tType);
-			}
+		if(this._metadata.file.type){
+			this.setType(this._metadata.file.type);
 		}
 		// TODO This code is pretty hacky
-		if(! this._metadata.file.exists("ext")){
+		if(! this._metadata.file.ext){
 			let tExt = false;
-			if(! empty(name)){
-				tParts = explode(".",name);
-				if(! empty(tParts) && count(tParts) > 1){
-					tExt = tParts[count(tParts) - 1];
+			if(name){
+				let tParts = name.split(".");
+				if(tParts.length && tParts.length > 1){
+					tExt = tParts[tParts.length - 1];
 				}
 			}
-			mimeType = this.getMimeType();
-			if(empty(tExt)){
+			let mimeType = this.getMimeType();
+			if(! tExt){
 				tExt = utils.file.getExtensionByMimeType(mimeType);
 				this.setName(this.getName()+"."+tExt);
 			}
-			if(! empty(tExt) && utils.file.checkExtensionByMimeType(tExt, mimeType)){
-				this._metadata.file.set("ext",tExt);
+			if(tExt && utils.file.checkExtensionByMimeType(tExt, mimeType)){
+				this._metadata.file.ext = tExt;
 			}
 		}
 		return true;
@@ -55,7 +56,7 @@ class slashrFile{
 	 * Returns an array of the values
 	 */
 	extract(){
-		return this._metadata.file.toArray();
+		return this._metadata.file;
 	}
 	/*
 	 * Validates and Creates attributes after init

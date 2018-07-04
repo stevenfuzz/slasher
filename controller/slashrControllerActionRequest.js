@@ -7,10 +7,11 @@ module.exports = class slashrControllerActionRequest{
 			url: null
 		};
 		this.data = this.dt = {
-			route : {},
-			query : {},
-			post : {},
-			cookies : {}
+			route: {},
+			query: {},
+			post: {},
+			files: {},
+			cookies: {}
 		};
 	}
 	init(route, req){
@@ -20,8 +21,13 @@ module.exports = class slashrControllerActionRequest{
 		this._metadata.action = route.action;
 		this.data.route = req.params;
 		this.data.query = req.query;
-		if(req.body) this.data.post = req.body;
-		
+		if(req.fields) this.data.post = req.fields;
+		else if(req.body) this.data.post = req.body;
+		if(req.files) this.data.files = req.files;
+
+		console.log("init requrest");
+		console.log(this.data);
+	
 		console.log("TODO: Put cookie and post data in the result");
 
 	}

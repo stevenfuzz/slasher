@@ -1,6 +1,6 @@
 slashr node insync MC Application Api Framework.
 
-Rapid dev...
+Slashr hates boilerplate. Slashr is faster because everything is immediately accessible from context. Slashr loves abbreviations. Slashr makes you faster. 
 
 * Abv Key:
 * child / chd

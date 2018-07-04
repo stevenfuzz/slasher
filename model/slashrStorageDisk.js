@@ -1,6 +1,7 @@
+const slashrStorageDisk = require("./slashrStorageDisk");
 module.exports = class slashrStorageDisk{
-	_metadata = {};
 	constructor(storage, options = {}) {
+		this._metadata = {};
 		this.setup(options);
 	}
 	setup() { /* Overload */ }

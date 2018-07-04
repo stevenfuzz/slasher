@@ -1,4 +1,8 @@
-class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
+const slashrStorageDisk = require("./slashrStorageDisk");
+module.exports = class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
+	// constructor(storage, options = {}) {
+	// 	super(storage, options);
+	// }
 	setup(options = {}){
 		if(! options.path) throw("Error initializing local disk adapter. Directory path blr::PATH must be defined.");
 		this._metadata.path = options.path;
