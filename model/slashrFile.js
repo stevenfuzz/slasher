@@ -1,31 +1,80 @@
-class slashrFile{
-	_metadata = {};
-	__construct(storage, options = array()){
+module.exports = class slashrFile{
+	
+	constructor(storage, options = {}){
+		this._metadata = {};
 		this._metadata.storage = storage;
 		this._metadata.file = {};
-		this._metadata.object = {};
 		this._metadata.isInitialized = false;
-		this._metadata.entity = new slashrEntity("files");
 		this._metadata.parent = null;
 		this._metadata.isNew = true;
 		this._metadata.isTmpInitialized = false;
+	}
+
+	async _load(){
+		let slashrEntity = require("./slashrEntity");
+		this._metadata.entity = new slashrEntity("files");
+		await this._metadata.entity._load();
 	}
 
 	setup(){
 		// Overload	
 	}
 
+	// Init by slashrFormUploadedFile, handle, or id
+	// key mixed slashrTempFile|id|fileKey|path
+	async init(key, options = {}){
+		const slashrTempFile = require("./slashrTempFile");
+		if(key instanceof slashrTempFile){
+			// Set the source as the uploaded file
+			this._metadata.tmpFile = key;
+			this.populate(this._metadata.tmpFile.extract());
+		}
+		// Check for an uploaded file
+		else if(key && key.constructor && key.constructor.name === "File"){
+			this.populate(key);
+			await this._initTmpFile();
+		}
+		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === false)){
+			// Key or id
+			let eId = null;
+			if(!isNaN(key)) eId = key;
+			else{
+				let keyVals = this._metadata.storage.files.decodeKey(key);
+				eId = ( keyVals.i) ? keyVals.i : null;
+			}
+			if(! eId) throw("Unable to init file by key value '{key}'.");
+			await this._metadata.entity.init(eId);
+			if(this._metadata.entity.isNew()) throw("Unable to init file entity by key value '{key}' and id '{eId}'.");
+			this.populate(this._metadata.entity.extract());
+		}
+		else throw("TODO: Init file by filepath");
+		
+		// Validate
+		this.validate();
+		return this;
+	}
+
 	/*
 	 * Populate the metadata by array
 	 */
 	populate(file){
+		this._metadata.file = {};
 
-		this._metadata.object = file;
+		if(! file.name) throw("File Error: No File Name");
+		if(! file.size) throw("File Error: No File Size");
+		if(! file.type) throw("File Error: No File Type");
+		if(! file.path) throw("File Error: No File Path");
+
+		this._metadata.file.name = file.name;
+		this._metadata.file.type = file.type;
+		this._metadata.file.size = file.size;
+		this._metadata.file.path = file.path;
 
 		// TODO Validate populated data
 		let utils = global.slashr.utils();
+
 		// reset the data
-		this.setName(values.name);
+		this.setName(file.name);
 		let name = this.getName();
 		
 		// Look for the true mimetype
@@ -50,6 +99,7 @@ class slashrFile{
 				this._metadata.file.ext = tExt;
 			}
 		}
+
 		return true;
 	}
 	/*
@@ -118,50 +168,21 @@ class slashrFile{
 		return this._metadata.file.ext;
 	}
 
-	_initTmpFile(){
+	async _initTmpFile(){
 		if(this._metadata.tmpFile) return false;
-		// TODO: Create temp files as a class
-		this._metadata.tmpFile = this._metadata.storage.files.temp(this);
+		this._metadata.tmpFile = await this._metadata.storage.files.temp(this);
 	}
 	
-	// Init by slashrFormUploadedFile, handle, or id
-	// key mixed slashrTempFile|id|fileKey|path
-	init(key, options = array()){
-		if(key instanceof slashrTempFile){
-			// Set the source as the uploaded file
-			this._metadata.tmpFile = key;
-			this.populate(this._metadata.tmpFile.extract());
-		}
-		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === false)){
-			// Key or id
-			let eId = null;
-			if(!isNaN(key)) eId = key;
-			else{
-				let keyVals = this._metadata.storage.files.decodeKey(key);
-				eId = ( keyVals.i) ? keyVals.i : null;
-			}
-			if(! eId) throw("Unable to init file by key value '{key}'.");
-			this._metadata.entity.init(eId);
-			if(this._metadata.entity.isNew()) throw("Unable to init file entity by key value '{key}' and id '{eId}'.");
-			this.populate(this._metadata.entity.extract());
-		}
-		else throw("TODO: Init file by filepath");
-		
-		// Validate
-		this.validate();
-		
-		return this;
-	}
-	
-	save(options = array()){
-		this._metadata.entity.populate(this._metadata.file.toArray());
-		this._metadata.entity.save();
+	async save(options = {}){
+		await this._metadata.entity.populate(this._metadata.file);
+		await this._metadata.entity.save();
 
-		let isSuccess = this._metadata.storage.save(this);
+		let isSuccess = await this._metadata.storage.save(this);
 		
 		if(isSuccess){
+			let slashrTempFile = require("./slashrTempFile");
 			if(this._metadata.source instanceof slashrTempFile){
-				this._metadata.source.delete();
+				await this._metadata.source.delete();
 			}
 		}
 		else throw("TODO: Deal with broken file issue saving slashrFile.");
@@ -169,7 +190,7 @@ class slashrFile{
 		return isSuccess;
 	}
 	
-	delete(options = array()){
+	delete(options = {}){
 		// TODO: How will this work if the file is saved in differant places other than the current instance?
 		if(this.isNew()) return false;
 		if(this._metadata.storage.delete(this)){
@@ -180,21 +201,15 @@ class slashrFile{
 	}
 	
 	getTempPath() {
-		if(! this._metadata.tmpFile){
-			this.initTmpFile();
-		}
+		if(! this._metadata.tmpFile) throw("File Error: Temp file not initialized.");
 		return this._metadata.tmpFile.getTempPath();
 	}
 	getTempFileId() {
-		if(! this._metadata.tmpFile){
-			this.initTmpFile();
-		}
+		if(! this._metadata.tmpFile) throw("File Error: Temp file not initialized.");
 		return this._metadata.tmpFile.getId();
 	}
 	getTempFile() {
-		if(! this._metadata.tmpFile){
-			this.initTmpFile();
-		}
+		if(! this._metadata.tmpFile) throw("File Error: Temp file not initialized.");
 		return this._metadata.tmpFile;
 	}
 	
@@ -203,7 +218,7 @@ class slashrFile{
 	 */
 	getRelativePath(){
 		if(this.isNew()) return false;
-		return this._metadata.storage.files.getRelativePath(this.getId(), this.getExtension());
+		return this._metadata.storage.getFileRelativePath(this.getId(), this.getExtension());
 	}
 	
 	/*
@@ -222,14 +237,18 @@ class slashrFile{
 	getId(){
 		return this._metadata.entity.getId();
 	}
-	getKey(values = array()){
+	getKey(){
 		if(this.isNew()) return false;
 		let values = {
 			i: this.getId(),
 			e: this.getExtension()
 		};
-		return this._metadata.storage.files.encodeKey(values);
+		return this._metadata.storage.encodeFileKey(values);
 	}
+	get key(){
+		return this.getKey();
+	}
+	set key(key){throw("File Key Cannot be Set.");}
 
 
 }

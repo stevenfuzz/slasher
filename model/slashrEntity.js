@@ -13,6 +13,9 @@ module.exports = class slashrEntity{
 	}
 	setup(){ /*Overload*/ };
 	async _load(){
+
+		console.log("LOAD OLOASOKJFKOLDJSFL JSDLKJF SLDKJF ");
+
 		this._metadata.key = null;
 		this._metadata.relatatedKeys = {};
 		this._metadata.relationships = {};
@@ -54,9 +57,11 @@ module.exports = class slashrEntity{
 		// Get the key
 		// TODO: Allow for other types
 		if(this.databaseRowExists()){
+			
 			let tProp = {};
 			tProp.name = this._metadata.databaseRow.getPrimaryKey();
 			tProp.val = null;
+			console.log("SETTING PROP!!!!!",tProp);
 			this._metadata.key = tProp;
 		}
 		if(entities[this._metadata.name]){
@@ -121,13 +126,23 @@ module.exports = class slashrEntity{
 					return this.set(col, value);
 				}
 			});
-
-
+			// Define camel case get / set
+			if(col !== methodName){
+				Object.defineProperty(this, methodName, {
+					get: function() {
+						return this.get(col);
+					},
+					set: function(value) {
+						return this.set(col, value);
+					}
+				});
+			}
 			// Get the setter / getter names
 			// By Decause is is camelcase, setUserName, getUserName
 			// For boolean prefixs (is, has), SHOULD BE would be isActive and setActive, 
 			// but that would conflict with the getters an setters above
-			methodName = utils.str.upperCaseWords(methodName);
+			methodName = utils.str.toUpperCaseWords(methodName);
+			console.log("METHODNAME",methodName);
 			this["set"+methodName] = function(value){
 				return this.set(col, value);
 			}.bind(this);
@@ -356,10 +371,10 @@ module.exports = class slashrEntity{
 	* @param {Array} values
 	* @returns {Element|Object|Boolean} The input node if acceptable, otherwise a false value
 	*/
-	populate(values, options = array()){
+	populate(values, options = {}){
 		// look for the key in the values
-		let keyName = this._formatPropertyKey(this.getKeyName());
-		let keyVal = this.getKeyValue();
+		let keyName = this._formatPropertyKey(this._getKeyName());
+		let keyVal = this._getKeyValue();
 		let vKeyVal = null;
 		for(let name in values){
 			if(keyName == this._formatPropertyKey(name)){
@@ -394,7 +409,7 @@ module.exports = class slashrEntity{
 		return ret;
 	}
 	_getKeyValue(){
-		key = null;
+		let key = null;
 		if(this.databaseRowExists()){
 			key = this._metadata.databaseRow.getPrimaryKeyValue();
 		}
@@ -408,7 +423,7 @@ module.exports = class slashrEntity{
 	}
 	__get(name){
 		// Todo update using entities config
-		entities = {};
+		let entities = {};
 		if(entities[this._metadata.name] && entities[this._metadata.name].relationships && entities[this._metadata.name].relationships[name]){
 			return this.syncRelated(name);
 		}

@@ -7,7 +7,8 @@ module.exports = class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
 		if(! options.path) throw("Error initializing local disk adapter. Directory path blr::PATH must be defined.");
 		this._metadata.path = options.path;
 	}
-	save(file, options = {}){
+	async save(file, options = {}){
+		let utils = global.slashr.utils();
 		// TODO: Just temporary
 		if(file.isNew()) throw("Error saving file to local disk. File can not be new.");
 		
@@ -16,48 +17,57 @@ module.exports = class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
 		let srcPath = file.getTempPath();
 		let relPath = file.getRelativePath();
 		
-		if(empty(relPath)) throw("Error saving file to local disk. File relative path not found.");
-		throw("GET PATH INFO AND FILE FUNCTIONS SET UP");
-		let pathInfo = pathinfo(relPath);
+		if(! relPath) throw("Error saving file to local disk. File relative path not found.");
+		//let pathInfo = pathinfo(relPath);
 
-		if(empty(pathInfo["basename"])) throw("Error saving file to local disk. File relative path has no file name.");
-		if(pathInfo["dirname"] == "/"){
+		let path = require("path");
+		let pathInfo = {
+			basename: path.basename(relPath),
+			dirname: path.dirname(relPath)
+		};
+
+		if(! pathInfo.basename) throw("Error saving file to local disk. File relative path has no file name.");
+		if(pathInfo.dirname == "/"){
 			// Fix a filename starting with a slash
-			relPath = pathInfo["basename"];
+			relPath = pathInfo.basename;
 		}
-		else if(pathInfo["dirname"] != "."){
+		else if(pathInfo.dirname != "."){
 			// Make sure it exists
 			// Create directories if needed
-			if(strpos(pathInfo["dirname"], "/") !== false){
-				if(! is_dir(basePath.pathInfo["dirname"])){
-					tParts = explode("/", pathInfo["dirname"]);
-					tPath = basePath;
+			if(pathInfo.dirname.indexOf("/") !== -1){
+				let t = await utils.file.dirExists(basePath+pathInfo.dirname);
+				if(! await utils.file.dirExists(basePath+pathInfo.dirname)){
+					let tParts = pathInfo.dirname.split("/");
+					let tPath = basePath;
 					for(let f of tParts){
 						tPath+=f;
-						if(! is_dir(tPath)){
-							if(! mkdir(tPath)) throw("Error saving file to local disk. Could not create directory '{tPath}'.");
+						let e = await utils.file.dirExists(tPath);
+						if(! await utils.file.dirExists(tPath)){
+							if(! await utils.file.mkdir(tPath)) throw("Error saving file to local disk. Could not create directory '{tPath}'.");
 						}
-						tPat+="/";
+						tPath+="/";
 					}
 				}
 			}
 		}
 		// Create the destination path
-		destPath = basePath.relPath;
+		destPath = basePath+relPath;
 
 		// Copy the file
-		isSuccess = copy(srcPath, destPath);
+		let isSuccess = await utils.file.copy(srcPath, destPath);
 		// TODO are these permissions ok?
 
 		return isSuccess;
 	}
-	delete(file, options = {}){
-		path = this._metadata.path.file.getRelativePath();
-		isSuccess = unlink(path);
+	async delete(file, options = {}){
+		let utils = global.slashr.utils();
+		let path = file.getRelativePath();
+		isSuccess = utils.file.unlink(path);
 		return isSuccess;
 	}
-	copy(file, localFilePath, options = {}){
-		path = this._metadata.path.file.getRelativePath();
-		return copy(path, localFilePath);
+	async copy(file, localFilePath, options = {}){
+		let utils = global.slashr.utils();
+		let path = file.getRelativePath();
+		return await utils.file.copy(path, localFilePath);
 	}
 }

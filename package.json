@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/stevenfuzz/slashr#readme",
   "dependencies": {
+    "base64url": "^3.0.0",
     "express": "^4.16.3",
     "express-formidable": "^1.0.0",
     "md5": "^2.2.1",

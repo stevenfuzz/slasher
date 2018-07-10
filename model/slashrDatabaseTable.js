@@ -32,6 +32,7 @@ module.exports = class slashrDatabaseTable{
 	  * @return blrDatabaseQueryResult Indicates the number of items.
 	  */
 	async select(expression, options = {}){
+		console.log("SEKECT FROM TABLE",expression);
 		let schema = await this.getSchema();
 		let whr = null;
 		let bindings = options.bindings || {};
@@ -39,6 +40,9 @@ module.exports = class slashrDatabaseTable{
 			whr = expression;
 		}
 		else{
+
+			console.log("INIT TABLE BY", expression);
+
 			// This is a primary key
 			if(! schema.primaryKey) throw("Cannot select by primary key on table '"+this._metadata.name+"'. No primary key found.");
 			else{

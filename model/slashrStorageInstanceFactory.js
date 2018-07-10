@@ -6,7 +6,8 @@ module.exports = class slashrStorageInstanceFactory{
 		let self = this;
 		return new Proxy(function(){}, {
 			get : function(obj, prop){
-				return self.getInstance("default");
+				let stor = self.getInstance("default");
+				return stor[prop];
 			},
 			apply: function(obj, context, args){
 				if(args.length === 0){
@@ -18,10 +19,10 @@ module.exports = class slashrStorageInstanceFactory{
 	}
 	
 	getInstance(name){
-		let cacheAdapter = this._metadata.instances[name] || this.factory(name); 
+		let storAdapter = this._metadata.instances[name] || this.factory(name); 
 		// Add to instances
-		if(! this._metadata.instances[name]) this._metadata.instances[name] = cacheAdapter;
-		return cacheAdapter;
+		if(! this._metadata.instances[name]) this._metadata.instances[name] = storAdapter;
+		return storAdapter;
 	}
 	
 	factory(key){

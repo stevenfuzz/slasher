@@ -47,7 +47,6 @@ module.exports = class slashrStorage{
 			switch(disk.adapter){
 				case "local":
 					let slashrStorageDiskLocalAdapter = require("./slashrStorageDiskLocalAdapter");
-					console.log(slashrStorageDiskLocalAdapter);
 					this._metadata.disks.push(new slashrStorageDiskLocalAdapter(this, disk));
 					break;
 				default:
@@ -72,15 +71,12 @@ module.exports = class slashrStorage{
 	getTmpDir(){
 		return this._metadata.tmpDir;
 	}
-	getFileUrl(){
-		return this._metadata.url;
-	}
 	
-	save(file, options = {}){
+	async save(file, options = {}){
 		// TODO What if it doesn't save on a multi disk system?
 		let isSaved = true;
 		for(let disk of this._metadata.disks){
-			if(! disk.save(file, options)){
+			if(! await disk.save(file, options)){
 				isSaved = false;
 				break;
 			}
@@ -88,11 +84,11 @@ module.exports = class slashrStorage{
 		return isSaved;
 	}
 	
-	delete(file, options = {}){
+	async delete(file, options = {}){
 		// TODO What if it doesn't save on a multi disk system?
 		let isDeleted = true;
 		for(let disk of this._metadata.disks){
-			if(! disk.delete(file, options)){
+			if(! await disk.delete(file, options)){
 				isDeleted = false;
 				break;
 			}
@@ -101,14 +97,42 @@ module.exports = class slashrStorage{
 	}
 	
 	// Copies file into the given path
-	copy(file, localFilePath, options = {}){
+	async copy(file, localFilePath, options = {}){
 		let isMoved = true;
 		// TODO: For now it is going to use the first disk
 		for(let disk of this._metadata.disks){
-			if(disk.copy(file, localFilePath, options)){
+			if(await disk.copy(file, localFilePath, options)){
 				return true;
 			}
 		}
 		return false;
+	}
+	getFileUrlByKey(key){
+		if(! key) return null;
+		return this._metadata.url+this.getFileRelativePath(key);
+	}
+	getFileRelativePath(id, ext){
+		if(! id) return null;
+		if(! ext){
+			// id should be the key
+			let keyVals = this.decodeFileKey(id);
+			if(! keyVals || ! keyVals.i || ! keyVals.e) return false;
+			id = keyVals.i;
+			ext = keyVals.e;
+		}
+		let f1 = Math.floor(id / 10000);
+		let f2 = Math.floor(id / 1000);
+		let f3 = Math.floor(id / 100);
+		return f1+"/"+f2+"/"+f3+"/"+id+((ext) ? "."+ext : "");
+	}
+	encodeFileKey(values){
+		let base64url = require("base64url");
+		let utils = global.slashr.utils();
+		return base64url.encode(JSON.stringify(values));
+	}
+	decodeFileKey(key){
+		let base64url = require("base64url");
+		let utils = global.slashr.utils();
+		return JSON.parse(base64url.decode(key));
 	}
 }

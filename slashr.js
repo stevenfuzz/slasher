@@ -21,7 +21,7 @@ const slashr = class slashr{
 		const express = require('express');
 		const bodyParser = require('body-parser');
 		const path = require('path');
-		const formidable = require('express-formidable');
+		const formidable = require('formidable');
 		
 		console.log("MOVE ALL OF THIS TO CONTROLLER");
 
@@ -31,21 +31,47 @@ const slashr = class slashr{
 		};
 
 		this._metadata.listener = express();
+		// this._metadata.listener.use(express.static(path.join(__dirname, 'build')));
 		
-		
-		this._metadata.listener.use(express.static(path.join(__dirname, 'build')));
+		// Set up static file server
+		// console.log(this.config.storage);
+		console.log("TODO: Get storage path from config.");
+		this._metadata.listener.use("/files",express.static("/var/www/html/MINT_PUBLIC/files",{fallthrough:false}));
+
+
 		this._metadata.listener.use(function(req, res, next) {
 			res.header("Access-Control-Allow-Origin", "*");
-			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 			res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 			if (req.method === 'OPTIONS') res.sendStatus(200);
 			else next();
 		});
 		
+
 		this._metadata.listener.use(bodyParser.json());
 		this._metadata.listener.use(bodyParser.urlencoded({ extended: true }));
-		this._metadata.listener.use(formidable());
-		
+		console.log("TODO: Set tmp to config tmp");
+		this._metadata.listener.use(function(req, res, next) {
+			var type = req.headers['content-type'];
+			if(type && type.startsWith("multipart/form-data")){
+				let form = new formidable.IncomingForm({
+					uploadDir: '/tmp',
+					multiples: true, // req.files to be arrays of files
+				});
+				form.once('error', console.log);
+				form.parse(req, function (err, fields, files) {
+					if(err) throw(err);
+					req.fields = fields;
+					req.files = files;
+					next();
+				});
+			}
+			else next();
+		});
+		// this._metadata.listener.use(formidable({
+		// 	uploadDir: '/tmp',
+  		// 	multiples: true, // req.files to be arrays of files
+		// }));
 		const routes = {
 			feed : {
 				default : {
@@ -104,6 +130,10 @@ const slashr = class slashr{
 			routeFn(req, res);
 		});
 		
+		// this._metadata.listener.use(function(req, res) {
+		// 	res.sendStatus(404);
+		// });
+
 		this.listen();
 	}
 	onExit(callback){

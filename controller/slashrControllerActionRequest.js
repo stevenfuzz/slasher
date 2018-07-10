@@ -11,10 +11,18 @@ module.exports = class slashrControllerActionRequest{
 			query: {},
 			post: {},
 			files: {},
-			cookies: {}
+			cookies: {},
+			headers: {
+				authorization : {
+					bearer : null
+				}
+			}
 		};
+
 	}
 	init(route, req){
+		console.log("init requrest");
+
 		this._metadata.method = req.req;
 		this._metadata.url = req.url;
 		this._metadata.controller = route.controller;
@@ -25,8 +33,11 @@ module.exports = class slashrControllerActionRequest{
 		else if(req.body) this.data.post = req.body;
 		if(req.files) this.data.files = req.files;
 
-		console.log("init requrest");
-		console.log(this.data);
+		if(req.headers){
+			if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
+				this.data.headers.authorization.bearer = req.headers.authorization.slice(7);
+			}
+		}
 	
 		console.log("TODO: Put cookie and post data in the result");
 

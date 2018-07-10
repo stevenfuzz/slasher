@@ -54,6 +54,7 @@ Slashr hates boilerplate. Slashr is faster because everything is immediately acc
 * file / f
 * percent / pct
 * cache / csh
+* header / hdr
 
 // Style
 If it is an instance of a class (like database, storage, cache), 

@@ -60,7 +60,7 @@ module.exports = class slashrDatabaseRow{
 		let updates = false;
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
-			let newVal = (this._metadata.column[name] === null) ? null : md5(this._metadata.column[name]);
+			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : md5(this._metadata.column[name]);
 			if(state.md5 != newVal){
 				if(this.isNew() && name == this._metadata.autoIncrement) throw("Cannot run query. Auto Increment column '"+name+"' can't be directly set.");
 				updates = updates || {};
@@ -137,7 +137,7 @@ module.exports = class slashrDatabaseRow{
 	isUpdated(){
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
-			let newVal = (this._metadata.column[name] === null) ? null :  md5(this._metadata.column[name]);
+			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null :  md5(this._metadata.column[name]);
 			if(state.md5 != newVal){
 				return true;
 			}
@@ -157,8 +157,8 @@ module.exports = class slashrDatabaseRow{
 	}
 	getPrimaryKeyValue(){
 		if(! this._metadata.primaryKey) throw("Cannot get primary key value for databaseTable '"+this._metadata.table.getName()+"'. No primary key found.");
-		pk = this._metadata.primaryKey;
-		return this.col.pk;
+		let pk = this._metadata.primaryKey;
+		return this.get(pk);
 	}
 	getPrimaryKey(){
 		if(! this._metadata.primaryKey) throw("Cannot get primary key for databaseTable '"+this._metadata.table.getName()+"'. No primary key found.");

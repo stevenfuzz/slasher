@@ -5,7 +5,8 @@ module.exports = class slashrCacheInstanceFactory{
 		let self = this;
 		return new Proxy(function(){}, {
 			get : function(obj, prop){
-				return self.getInstance("default");
+				let cache = self.getInstance("default");
+				return cache[prop];
 			},
 			apply: function(obj, context, args){
 				if(args.length === 0){
