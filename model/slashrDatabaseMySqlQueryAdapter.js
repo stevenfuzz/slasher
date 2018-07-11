@@ -81,7 +81,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		if(this._metadata.parts.from){
 			for(let i in this._metadata.parts.from){
 				if(! this._metadata.parts.from[i].alias) fromArr.push(this._metadata.parts.from[i].table);
-				else fromArr.push(this._metadata.parts.from[i].table+" "+this._metadata.parts.from[i].table);
+				else fromArr.push(this._metadata.parts.from[i].table+" "+this._metadata.parts.from[i].alias);
 			}
 		}
 		switch(this._metadata.type){
@@ -144,22 +144,23 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			case 'delete':
 				if(this._metadata.parts.join){
 					let tJoinArr = [];
-					for(key in this._metadata.parts.join){
-						switch(parts.join.type){
+					for(let key in this._metadata.parts.join){
+						let value = this._metadata.parts.join[key];
+						switch(value.type){
 							case 'left':
 								qry += "\nLEFT JOIN ";
 								break;
 							default:
-								throw("Join type '"+parts.join.type+"' not available.");
+								throw("Join type '"+value.type+"' not available.");
 						}
 						// Add the table
 						let joinTable = false;
 						for(let i in value.table){
-							joinTable = (value['table'].alias) ? value['table'].tableName + " " + value['table'].alias : value['table'].tableName;
+							joinTable = (value.table[i].alias) ? value.table[i].table + " " + value.table[i].alias : value.table[i].table;
 							break;
 						}
 						
-						if(! joinTable) throw new Frak("Join table not found for SQL Join");
+						if(! joinTable) throw("Join table not found for SQL Join");
 						
 						// Add the on predicate
 						qry += joinTable+" ON "+this._expressionToString(value.expression);
@@ -202,6 +203,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 				}
 				break;
 		}
+
 		return qry;
 	}
 	select(values){
@@ -252,10 +254,11 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			expression = alias;
 			alias = false;
 		}
-		if(this._metadata.parts.join.length === 0) this._metadata.parts.join = [];
+	
+		if(! this._metadata.parts.join) this._metadata.parts.join = [];
 		
 		this._metadata.parts.join.push({
-			joinType: "leftJoin",
+			type: "left",
 			expression: expression,
 			table: this._parseParameterTable(table, alias)
 		});

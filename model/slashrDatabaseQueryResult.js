@@ -1,6 +1,6 @@
 module.exports = class slashrDatabaseQueryResult{
-	constructor(options) { 
-		this._metadata = options;
+	constructor(results, options) { 
+		this._metadata = results;
 	}
 	[Symbol.iterator]() {
 		let index = 0;

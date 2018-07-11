@@ -13,9 +13,6 @@ module.exports = class slashrEntity{
 	}
 	setup(){ /*Overload*/ };
 	async _load(){
-
-		console.log("LOAD OLOASOKJFKOLDJSFL JSDLKJF SLDKJF ");
-
 		this._metadata.key = null;
 		this._metadata.relatatedKeys = {};
 		this._metadata.relationships = {};
@@ -57,11 +54,9 @@ module.exports = class slashrEntity{
 		// Get the key
 		// TODO: Allow for other types
 		if(this.databaseRowExists()){
-			
 			let tProp = {};
 			tProp.name = this._metadata.databaseRow.getPrimaryKey();
 			tProp.val = null;
-			console.log("SETTING PROP!!!!!",tProp);
 			this._metadata.key = tProp;
 		}
 		if(entities[this._metadata.name]){
@@ -101,7 +96,7 @@ module.exports = class slashrEntity{
 //	}
 	// TODO: How do we feel about format methods
 	_formatPropertyKey(name){
-		name = name.toLowerCase().replace("_","");
+		name = name.toLowerCase().replace(/_/g,"");
 		return name;
 	}
 	_formatPropertyKeyToDatabaseColumn(name){
@@ -142,7 +137,6 @@ module.exports = class slashrEntity{
 			// For boolean prefixs (is, has), SHOULD BE would be isActive and setActive, 
 			// but that would conflict with the getters an setters above
 			methodName = utils.str.toUpperCaseWords(methodName);
-			console.log("METHODNAME",methodName);
 			this["set"+methodName] = function(value){
 				return this.set(col, value);
 			}.bind(this);

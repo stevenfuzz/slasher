@@ -45,7 +45,7 @@ module.exports = class slashrDatabaseRow{
 				for(let name in row){
 					if(this._metadata.columns[name]){
 						this._metadata.column[name] = this.formatSelectValue(row[name], this._metadata.columns[name].type);
-						this._metadata.columns[name].md5 = md5(this._metadata.column[name]);
+						this._metadata.columns[name].md5 = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : md5(this._metadata.column[name]);
 						if(this._metadata.primaryKey == name && this._metadata.column[name]) this._metadata.isNew = false;
 					}	
 				}

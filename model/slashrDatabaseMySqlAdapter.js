@@ -93,7 +93,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 									number: error.errno,
 									message: error.sqlMessage,
 								};
-								rslt = new slashrDatabaseQueryResult(resultSet);
+								rslt = new slashrDatabaseQueryResult(resultSet, options);
 								reject(rslt);
 								return;
 							}
@@ -116,7 +116,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 									break;
 							}
 							
-							rslt = new slashrDatabaseQueryResult(resultSet);
+							rslt = new slashrDatabaseQueryResult(resultSet, options);
 							
 							resolve(rslt);
 					});
@@ -212,6 +212,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		else if(type.startsWith("decimal")){
 				ret = "decimal";
 		}
+		else if(type === "json"){
+			ret = "json";
+		}
 		
 		if(! ret) throw("Database column type '"+type+"' not found");
 
@@ -252,6 +255,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			case "string":
 				if(value) ret = String(value);
 				break;
+			case "json":
+				if(value) ret = JSON.parse(value);
+				break;
 			case "datetime":
 				if(value){
 					ret = new Date(value);
@@ -260,6 +266,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			case "boolean":
 				if(isset(value)) ret = (parseInt(value) === 1) ? true : false;
 				break;
+			
 			default:
 				ret = value;
 				throw new Exception("Error formating column select value, type '{type}' not found.");
@@ -279,6 +286,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 				break;
 			case "string":
 				if(value) ret = String(value);
+				break;
+			case "json":
+				if(value) ret = JSON.stringify(value);
 				break;
 			case "datetime":
 				throw("HANDLE DATETIME 2");

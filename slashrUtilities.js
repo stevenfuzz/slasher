@@ -21,7 +21,7 @@ class slashrCoreUtilities{
 
 class slashrStringUtilities{
 	toCamelCase(value){
-		value = value.replace("-", " ").replace("_", " ");
+		value = value.replace(/-/g, " ").replace(/_/g, " ");
 		value = this.toUpperCaseWords(value);
 		let tVals = value.split(" ");
 		if(tVals.length) tVals[0] = tVals[0].toLowerCase();
