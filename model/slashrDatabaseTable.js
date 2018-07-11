@@ -32,7 +32,6 @@ module.exports = class slashrDatabaseTable{
 	  * @return blrDatabaseQueryResult Indicates the number of items.
 	  */
 	async select(expression, options = {}){
-		console.log("SEKECT FROM TABLE",expression);
 		let schema = await this.getSchema();
 		let whr = null;
 		let bindings = options.bindings || {};
@@ -40,9 +39,6 @@ module.exports = class slashrDatabaseTable{
 			whr = expression;
 		}
 		else{
-
-			console.log("INIT TABLE BY", expression);
-
 			// This is a primary key
 			if(! schema.primaryKey) throw("Cannot select by primary key on table '"+this._metadata.name+"'. No primary key found.");
 			else{
@@ -54,8 +50,9 @@ module.exports = class slashrDatabaseTable{
 		}
 		options.bindings = bindings;
 		
-		return await this._metadata.database.query
-				.select()
+		console.log("TODO: figure out where query is not working without calling as fn");
+		return await this._metadata.database.query()
+				.select("*")
 				.from(this._metadata.name)
 				.where(whr)
 				.run(options);
@@ -77,7 +74,7 @@ module.exports = class slashrDatabaseTable{
 			}
 		}
 		options.bindings = bindings;
-		return await this._metadata.database.query
+		return await this._metadata.database.query()
 				.update(this._metadata.name)
 				.set(values)
 				.where(whr)
@@ -85,7 +82,7 @@ module.exports = class slashrDatabaseTable{
 	}
 	async insert(values, options = {}){
 		options.bindings = {};
-		return await this._metadata.database.query
+		return await this._metadata.database.query()
 			.insert(this._metadata.name)
 			.values(values)
 			.run(options);
@@ -107,7 +104,7 @@ module.exports = class slashrDatabaseTable{
 			}
 		}
 		options.bindings = bindings;
-		return await this._metadata.database.query
+		return await this._metadata.database.query()
 			.delete(this._metadata.name)
 			.where(whr)
 			.run(options);

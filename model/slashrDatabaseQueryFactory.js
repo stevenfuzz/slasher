@@ -6,7 +6,8 @@ module.exports = class slashrDatabaseQueryFactory{
 		let self = this;
 		return new Proxy(function(){}, {
 			get : function(obj, prop){
-				return self._metadata.database._getQueryFactory[prop];
+				let qry = self._metadata.database._getQueryFactory();
+				return qry[prop];
 			},
 			apply: function(obj, context, args){
 				if(args.length > 0){
