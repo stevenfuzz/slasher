@@ -11,7 +11,7 @@ module.exports = class slashrDatabaseQueryFactory{
 			},
 			apply: function(obj, context, args){
 				if(args.length > 0){
-					throw("ALLOW QUERY EXECUTION");
+					return self._metadata.database.executeQuery(args[0],args[1] || {});
 				}
 				return self._metadata.database._getQueryFactory();
 			}
