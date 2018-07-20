@@ -197,7 +197,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		type = type.toLowerCase();
 		let ret = false;
 		
-		if(type.startsWith("varchar") || type.endsWith("text")){
+		if(type.startsWith("varchar") || type.startsWith("char") || type.endsWith("text")){
 			ret = "string";
 		}
 		else if(type === "tinyint(1)"){
@@ -206,7 +206,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		else if(type.startsWith("int") || type.startsWith("tinyint")){
 			ret = "integer";
 		}
-		else if(type.startsWith("datetime")){
+		else if(type.startsWith("date")){
 				ret = "datetime";
 		}
 		else if(type.startsWith("decimal")){
@@ -214,6 +214,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		}
 		else if(type === "json"){
 			ret = "json";
+		}
+		else if(type === "point"){
+			ret = "point";
 		}
 		
 		if(! ret) throw("Database column type '"+type+"' not found");
@@ -291,9 +294,10 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 				if(value) ret = JSON.stringify(value);
 				break;
 			case "datetime":
-				throw("HANDLE DATETIME 2");
-				tDate = date("Y-m-d H:i:s", value);
-				if(! empty(tDate)) ret = tDate;
+				if(typeof value === 'object'){
+					ret = value.toISOString().substring(0, 19).replace('T', ' ')
+				}
+				else throw("HANDLE DATETIME 2");
 				break;
 			case "boolean":
 				if(typeof value === "boolean") ret = (value) ? 1 : 0;

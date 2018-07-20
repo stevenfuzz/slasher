@@ -29,7 +29,35 @@ module.exports = class slashrControllerActionRequest{
 		this._metadata.action = route.action;
 		this.data.route = req.params;
 		this.data.query = req.query;
-		if(req.fields) this.data.post = req.fields;
+
+		console.log("FIELDS!!!!!!!",req.fields);
+
+		if(req.fields){
+			console.log(req.fields._slashrFormMetadata);
+			if(req.fields._slashrFormMetadata){
+				req.fields._slashrFormMetadata = JSON.parse(req.fields._slashrFormMetadata);
+				for(let name in req.fields){
+					if(req.fields._slashrFormMetadata.elmts[name] && req.fields._slashrFormMetadata.elmts[name].dataType){
+						switch(req.fields._slashrFormMetadata.elmts[name].dataType){
+							case "json":
+								this.data.post[name] = JSON.parse(req.fields[name]);
+							break;
+							case "date":
+								if(req.fields[name] && req.fields[name] != ""){
+									let d = new Date();
+									d.setTime(req.fields[name]);
+									console.log(d);
+									this.data.post[name] = d;
+								}
+								else this.data.post[name] = null;
+							break;
+						}
+					}
+					else this.data.post[name] = req.fields[name];
+				}
+			}
+			else this.data.post = req.fields;
+		} 
 		else if(req.body) this.data.post = req.body;
 		if(req.files) this.data.files = req.files;
 
