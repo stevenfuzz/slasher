@@ -30,6 +30,8 @@ module.exports = class slashrControllerActionRequest{
 		this.data.route = req.params;
 		this.data.query = req.query;
 
+		console.log("TODO: Merge fields and files for forms in request");
+		console.log("TODO: Make sure controllers and requests are per instance based.");
 		console.log("FIELDS!!!!!!!",req.fields);
 
 		if(req.fields){

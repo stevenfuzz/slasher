@@ -132,11 +132,39 @@ module.exports = class slashrFile{
 		this._metadata.file.name = name;
 		return this;
 	}
+	get name(){
+		return this.getName();
+	}
+	set name(name){
+		this.setName(name);
+		return this;
+	}
 	getType(){
 		return this._metadata.file.type;
 	}
 	setType(type){
 		this._metadata.file.type = type;
+		return this;
+	}
+	get type(){
+		return this.getType();
+	}
+	set type(type){
+		this.setType(size);
+		return this;
+	}
+	getMetadata(){
+		return this._metadata.file.metadata;
+	}
+	setMetadata(metadata){
+		this._metadata.file.metadata = metadata;
+		return this;
+	}
+	get metadata(){
+		return this.getMetadata();
+	}
+	set metadata(metadata){
+		this.setMetadata(metadata);
 		return this;
 	}
 	getSize(){
@@ -146,11 +174,25 @@ module.exports = class slashrFile{
 		this._metadata.file.size = size;
 		return this;
 	}
+	get size(){
+		return this.getSize();
+	}
+	set size(size){
+		this.setSize(size);
+		return this;
+	}
 	getMimeType(){
 		return this.getType();
 	}
 	setMimeType(type){
 		this.setType(type);
+		return this;
+	}
+	get mimeType(){
+		return this.getMimeType();
+	}
+	set mimeType(type){
+		this.setMimeType(type);
 		return this;
 	}
 	getContent(){
@@ -160,6 +202,9 @@ module.exports = class slashrFile{
 		
 		return file_get_contents(tPath);
 	}
+	get content(){
+		return this.getContent();
+	}
 	setExtension(ext){
 		this._metadata.file.ext = ext;
 		return this;
@@ -167,13 +212,24 @@ module.exports = class slashrFile{
 	getExtension(){
 		return this._metadata.file.ext;
 	}
+	get extension(){
+		return this.getExtension();
+	}
+	set extension(ext){
+		this.setExtension(ext);
+		return this;
+	}
 
 	async _initTmpFile(){
 		if(this._metadata.tmpFile) return false;
 		this._metadata.tmpFile = await this._metadata.storage.files.temp(this);
 	}
 	
+	
 	async save(options = {}){
+
+		console.log("ABOUT TO POPULATE WITH VALUES",this._metadata.file);
+
 		await this._metadata.entity.populate(this._metadata.file);
 		await this._metadata.entity.save();
 
