@@ -32,7 +32,6 @@ module.exports = class slashrControllerActionRequest{
 
 		console.log("TODO: Merge fields and files for forms in request");
 		console.log("TODO: Make sure controllers and requests are per instance based.");
-		console.log("FIELDS!!!!!!!",req.fields);
 
 		if(req.fields){
 			console.log(req.fields._slashrFormMetadata);

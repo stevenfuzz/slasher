@@ -37,6 +37,11 @@ module.exports = class slashrDatabaseRow{
 		this._metadata.column[name] = value;
 		return this;
 	}
+	hash(value){
+		if(value === null) return null;
+		if(typeof value === "object") value = JSON.stringify(value);
+		return md5(value);
+	}
 
 	async init(value, options){
 		let res = await this._metadata.table.select(value, options);
@@ -45,7 +50,7 @@ module.exports = class slashrDatabaseRow{
 				for(let name in row){
 					if(this._metadata.columns[name]){
 						this._metadata.column[name] = this.formatSelectValue(row[name], this._metadata.columns[name].type);
-						this._metadata.columns[name].md5 = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : md5(this._metadata.column[name]);
+						this._metadata.columns[name].md5 = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : this.hash(this._metadata.column[name]);
 						if(this._metadata.primaryKey == name && this._metadata.column[name]) this._metadata.isNew = false;
 					}	
 				}
@@ -60,13 +65,14 @@ module.exports = class slashrDatabaseRow{
 		let updates = false;
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
-			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : md5(this._metadata.column[name]);
+			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : this.hash(this._metadata.column[name]);
 			if(state.md5 != newVal){
 				if(this.isNew() && name == this._metadata.autoIncrement) throw("Cannot run query. Auto Increment column '"+name+"' can't be directly set.");
 				updates = updates || {};
 				updates[name] = this.formatInsertValue(this._metadata.column[name], this._metadata.columns[name].type);
 			}
 		}
+		console.log(updates);
 		if(updates){
 			let res = null;
 			if(this.isNew()){
@@ -91,7 +97,7 @@ module.exports = class slashrDatabaseRow{
 					this._metadata.isNew = false;	
 				}
 				for(let name in updates){
-					this._metadata.columns[name].md5 = md5(updates[name]);
+					this._metadata.columns[name].md5 = this.hash(updates[name]);
 				}
 				return true;
 			}
@@ -137,7 +143,7 @@ module.exports = class slashrDatabaseRow{
 	isUpdated(){
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
-			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null :  md5(this._metadata.column[name]);
+			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null :  this.hash(this._metadata.column[name]);
 			if(state.md5 != newVal){
 				return true;
 			}
@@ -147,7 +153,7 @@ module.exports = class slashrDatabaseRow{
 	isColumnUpdated(name){
 		if(! this.hasColumn(name)) throw("blrDatabaseRow Error: Call to isColumnUpdated failed. Column '"+name+"' does not exist.");
 		throw "TODO PLEASE TEST";
-		return (this._metadata.columns[name].md5 != md5(this._metadata.column[name]));
+		return (this._metadata.columns[name].md5 != this.hash(this._metadata.column[name]));
 	}
 	formatSelectValue(value, type){
 		return this._metadata.database.formatColumnSelectValue(value, type);
