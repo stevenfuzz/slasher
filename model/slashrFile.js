@@ -34,12 +34,12 @@ module.exports = class slashrFile{
 			this.populate(key);
 			await this._initTmpFile();
 		}
-		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === false)){
+		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === -1)){
 			// Key or id
 			let eId = null;
 			if(!isNaN(key)) eId = key;
 			else{
-				let keyVals = this._metadata.storage.files.decodeKey(key);
+				let keyVals = this._metadata.storage.decodeFileKey(key);
 				eId = ( keyVals.i) ? keyVals.i : null;
 			}
 			if(! eId) throw("Unable to init file by key value '{key}'.");
@@ -58,17 +58,20 @@ module.exports = class slashrFile{
 	 * Populate the metadata by array
 	 */
 	populate(file){
+
+		console.log(file);
+
 		this._metadata.file = {};
 
 		if(! file.name) throw("File Error: No File Name");
 		if(! file.size) throw("File Error: No File Size");
 		if(! file.type) throw("File Error: No File Type");
-		if(! file.path) throw("File Error: No File Path");
+		// if(! file.path) throw("File Error: No File Path");
 
 		this._metadata.file.name = file.name;
 		this._metadata.file.type = file.type;
 		this._metadata.file.size = file.size;
-		this._metadata.file.path = file.path;
+		this._metadata.file.path = file.path || null;
 
 		// TODO Validate populated data
 		let utils = global.slashr.utils();
@@ -229,7 +232,7 @@ module.exports = class slashrFile{
 	async save(options = {}){
 
 		console.log("ABOUT TO POPULATE WITH VALUES",this._metadata.file);
-
+throw("SDKLFJFH");
 		await this._metadata.entity.populate(this._metadata.file);
 		await this._metadata.entity.save();
 

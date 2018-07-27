@@ -394,9 +394,9 @@ module.exports = class slashrEntity{
 		return this;
 	}
 	// Inverse of populate, will create a key value array of properties and child properties (prefixed by child name)
-	extract(options = array()){
-		ret = [];
-		for(key in this._metadata.properties){
+	extract(options = {}){
+		let ret = [];
+		for(let key in this._metadata.properties){
 			ret[key] = this.get(key);
 		}
 		// TODO: Add Children
