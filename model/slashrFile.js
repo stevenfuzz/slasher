@@ -232,7 +232,7 @@ module.exports = class slashrFile{
 	async save(options = {}){
 
 		console.log("ABOUT TO POPULATE WITH VALUES",this._metadata.file);
-throw("SDKLFJFH");
+
 		await this._metadata.entity.populate(this._metadata.file);
 		await this._metadata.entity.save();
 
