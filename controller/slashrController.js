@@ -40,8 +40,11 @@ module.exports = class slashrController{
 
 		// Instaniate the controller
 		let controller = new controllerClass();
+
+		if(! controller[actionMethod]) throw(`Controller Error: Action Method method '${actionMethod}' not found in controller '${actionOptions.controller}Controller'.`);
 		
 		// Try to get the method args to send to action
+		console.log(controller);
 		let methodArgs = this.utils.core.getMethodArgumentNames(controller, actionMethod);
 		let actionArgs = [];
 
