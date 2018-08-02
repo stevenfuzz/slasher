@@ -110,9 +110,6 @@ const slashr = class slashr{
 				let actionRoutes = routes[controller][action].routes || {default:routes[controller][action].route};
 				for(let routeKey in actionRoutes){
 					this._metadata.listener.all(actionRoutes[routeKey], (req, res) => {
-						console.log("SLDKJFLSDKJFLKSJDFLKJSDLFKJSLDKFJH");
-						console.log("asdfasdfasdf",req);
-						
 						routeFn(req, res, {
 							controller: controller,
 							action : action,
