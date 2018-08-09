@@ -53,6 +53,8 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];
+		// console.log(query);
+		// console.log(bindings);
 		query = query.replace(/:\w+/g, function(match) {
 			let key = match.slice(1);
 			if(bindings[key] === undefined) throw("Query Error: Query parameter "+match+" not found in bindings.");
@@ -60,10 +62,8 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			return "?";
 		});		
 		
-//		console.log(query);
-//		console.log(bindArr);
-//		throw("SDLKFJSDFH");
 		
+
 		let rslt = new Promise(function(resolve, reject){
 			self.connector.getConnection(
 				function(err, connection) {

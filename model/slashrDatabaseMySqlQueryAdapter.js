@@ -313,12 +313,39 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			// check if bindings
 			let op = "=";
 			let value = expression[key];
-			if(typeof expression[key] === 'string' && value.startsWith(":")){
-				let tBind = value.slice(1, value.length).trim();
-				if(bindings[tBind] === undefined) throw("Could not find bind variable '"+value+"'.");
-				if(bindings[tBind] === null){
-					op = "IS";
+
+			console.log(expression);
+
+			if(typeof value === 'string'){
+
+				// Check for like
+				let pre = "";
+				let post = "";
+				value = value.trim();
+				if(value.startsWith("%") || value.endsWith("%")){
+					op = "LIKE";
+					if(value.startsWith("%")){
+						pre = "%";
+						value = value.slice(1, value.length).trim();
+					}
+					if(value.endsWith("%")){
+						post = "%";
+						// value = value.slice(1, value.length).trim();
+						value = value.slice(0, value.length - 1).trim();
+					}
 				}
+
+ 				if(value.startsWith(":")){
+					let tBind = value.slice(1, value.length).trim();
+					if(bindings[tBind] === undefined) throw("Could not find bind variable '"+value+"'.");
+					if(bindings[tBind] === null){
+						op = "IS";
+					}
+				}
+				else value = mysql.escape(value);
+				
+				// Add the pre and post values
+				value = pre+value+post;
 			}
 			else value = mysql.escape(value);
 			tPredicateArr.push(key+" "+op+" "+value);

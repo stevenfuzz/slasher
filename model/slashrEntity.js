@@ -1,5 +1,5 @@
 module.exports = class slashrEntity{
-	//	protected model, mdl, utils, _metadata, databaseRow, dbRow, relatedConfig = array(), properties, props, key;
+	//	protected model, mdl, this.utils, _metadata, databaseRow, dbRow, relatedConfig = array(), properties, props, key;
 //	__relatedOrphans = array();
 //	public related, rel, name;
 	constructor(name, options){
@@ -10,6 +10,7 @@ module.exports = class slashrEntity{
 		}
 		let slashrComponentModel = require("./slashrComponentModel");
 		this.model = this.mdl = new slashrComponentModel();
+		this.utils =  global.slashr.utils();
 	}
 	setup(){ /*Overload*/ };
 	async _load(){
@@ -107,12 +108,11 @@ module.exports = class slashrEntity{
 		return null;
 	}
 	_initMutators(){
-		let utils = global.slashr.utils();
 		for(let key in this._metadata.properties){
 			let col = this._metadata.properties[key].column;
 
 			// Add simple property based setters and getters
-			let methodName = utils.str.toCamelCase(col);
+			let methodName = this.utils.str.toCamelCase(col);
 			Object.defineProperty(this, col, {
 				get: function() {
 					return this.get(col);
@@ -136,7 +136,7 @@ module.exports = class slashrEntity{
 			// By Decause is is camelcase, setUserName, getUserName
 			// For boolean prefixs (is, has), SHOULD BE would be isActive and setActive, 
 			// but that would conflict with the getters an setters above
-			methodName = utils.str.toUpperCaseWords(methodName);
+			methodName = this.utils.str.toUpperCaseWords(methodName);
 			this["set"+methodName] = function(value){
 				return this.set(col, value);
 			}.bind(this);
@@ -247,10 +247,10 @@ module.exports = class slashrEntity{
 	
 //	__call(name, arguments){
 //		entities = blr::config(blr::ENTITIES);
-//		if(this.utils.string.startsWith(name, "get")) type = "get";
-//		else if(this.utils.string.startsWith(name, "set")) type = "set";
-//		else if(this.utils.string.startsWith(name, "is")) type = "is";
-//		else if(this.utils.string.startsWith(name, "has")) type = "has";
+//		if(this.this.utils.string.startsWith(name, "get")) type = "get";
+//		else if(this.this.utils.string.startsWith(name, "set")) type = "set";
+//		else if(this.this.utils.string.startsWith(name, "is")) type = "is";
+//		else if(this.this.utils.string.startsWith(name, "has")) type = "has";
 //		else if(! empty(entities[this._metadata.name]) && ! empty(entities[this._metadata.name].relationships) && ! empty(entities[this._metadata.name].relationships[name])){
 //			return this.syncRelated(name);
 //		}
@@ -394,13 +394,21 @@ module.exports = class slashrEntity{
 		return this;
 	}
 	// Inverse of populate, will create a key value array of properties and child properties (prefixed by child name)
+	
 	extract(options = {}){
 		let ret = [];
 		for(let key in this._metadata.properties){
-			ret[key] = this.get(key);
+			let rKey = key;
+			if(options.camelCase){
+				rKey = this.utils.str.toCamelCase(this._metadata.properties[key].column);
+			}
+			ret[rKey] = this.get(key);
 		}
 		// TODO: Add Children
 		return ret;
+	}
+	toArray(options = {}){
+		return this.extract(options);
 	}
 	_getKeyValue(){
 		let key = null;
