@@ -20,8 +20,6 @@ module.exports = class slashrApiResultModel extends slashrControllerActionResult
 		return this;
 	}
 	getResponseData(){
-		console.log(this);
-		
 		return {
 			accessToken: this._metadata.accessToken,
 			error: null,

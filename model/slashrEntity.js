@@ -468,6 +468,9 @@ module.exports = class slashrEntity{
 		return (this._metadata.databaseRow);
 	}
 	_saveDatabaseRow(){
+
+		console.log("ROW EXISTS: ", this.databaseRowExists(), this.isUpdated());
+
 		if(this.databaseRowExists() && this.isUpdated()){
 			return this._metadata.databaseRow.save();
 		}
@@ -540,6 +543,9 @@ module.exports = class slashrEntity{
 //				}
 //			}
 //		}
+
+		console.log("DO UPDATE????",this.isUpdated());
+
 		if(this.isUpdated()){
 			// Save Entity
 			if(this.databaseRowExists()){

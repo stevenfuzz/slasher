@@ -38,16 +38,35 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		if(options.bindings){
 			for(let key in options.bindings){
 				let value = options.bindings[key];
-				// Format Like
-				if(query.indexOf("%:"+key) !== -1){
-					value = '%'+value;
-					query = query.replace("%:{key}", ":{key}");
+				if(typeof value === "string"){
+					// Format Like
+					if(query.indexOf("%:"+key) !== -1){
+						value = '%'+value;
+						query = query.replace("%:{key}", ":{key}");
+					}
+					if(query.indexOf(":"+key+"%") !== -1){
+						value = value+'%';
+						query = query.replace(":"+key+"%", ":"+key);
+					}
+					bindings[key] = value;
 				}
-				if(query.indexOf(":"+key+"%") !== -1){
-					value = value+'%';
-					query = query.replace(":"+key+"%", ":"+key);
+				// Numeric
+				else if(typeof value === "number"){
+					// Do nothing should be good
+					bindings[key] = value;
 				}
-				bindings[key] = value;
+				// Format IN from array;
+				else if(Array.isArray(value)){
+					let kIdx = 1;
+					let nKeys = [];
+					for(let i in value){
+						let nKey = "_"+key+kIdx;
+						bindings[nKey] = value;
+						nKeys.push(":"+nKey);
+					}
+					query = query.replace(":"+key, "("+nKeys.join(",")+")");
+				}
+				else throw("Query Error: Unable to parse binding value for key: "+key+".");
 			}
 		}
 		

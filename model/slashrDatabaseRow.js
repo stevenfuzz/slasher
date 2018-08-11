@@ -72,7 +72,6 @@ module.exports = class slashrDatabaseRow{
 				updates[name] = this.formatInsertValue(this._metadata.column[name], this._metadata.columns[name].type);
 			}
 		}
-		console.log(updates);
 		if(updates){
 			let res = null;
 			if(this.isNew()){
@@ -143,7 +142,9 @@ module.exports = class slashrDatabaseRow{
 	isUpdated(){
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
+
 			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null :  this.hash(this._metadata.column[name]);
+			
 			if(state.md5 != newVal){
 				return true;
 			}

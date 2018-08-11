@@ -175,6 +175,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		}
 		
 		// Order by
+		// Limit
 		switch(this._metadata.type){
 			case 'select':
 				if(this._metadata.parts.orderBy){
@@ -201,6 +202,11 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					}
 					if(orderByArr.length) qry += "\nORDER BY "+orderByArr.join(", ");
 				}
+				if(this._metadata.parts.limit){
+					let limitVal = `${this._metadata.parts.limit.rowCount}`;
+					if(this._metadata.parts.limit.offset) limitVal = `${this._metadata.parts.limit.offset},${limitVal}`;
+					qry += `\nLIMIT ${limitVal}`;
+				}
 				break;
 		}
 
@@ -215,6 +221,21 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		this._metadata.type = 'select';
 		this._metadata.parts.orderBy = values;
 		return this;
+	}
+	limit(offset, rowCount = 0){
+		if(! rowCount){
+			rowCount = offset;
+			offset = 0;
+		}
+		this._metadata.type = 'select';
+		this._metadata.parts.limit = {
+			offset: offset,
+			rowCount: rowCount
+		};
+		return this;
+	}
+	top(rowCount){
+		this.limit(rowCount);
 	}
 	update(table, alias){
 		this._metadata.type = 'update';
@@ -266,6 +287,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return this;
 	}
 	set(values){
+		if(typeof values !== "object") throw("Query Set Error: Values must be an object.");
 		if(this._metadata.type != 'update') throw("Set can only be called on update queries.");
 		this._metadata.parts.values = values;
 		return this;
@@ -302,7 +324,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		}
 		else if(typeof expression === "string") return expression;
 		else if(typeof expression !== "object") throw new frak("Expression must be expression, string, or name/value array");
-		
+
 		// Get the bindings to check for syntax
 		let bindings = this.getBindings();
 		
@@ -313,8 +335,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			// check if bindings
 			let op = "=";
 			let value = expression[key];
-
-			console.log(expression);
 
 			if(typeof value === 'string'){
 
@@ -330,7 +350,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					}
 					if(value.endsWith("%")){
 						post = "%";
-						// value = value.slice(1, value.length).trim();
 						value = value.slice(0, value.length - 1).trim();
 					}
 				}
@@ -341,9 +360,12 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					if(bindings[tBind] === null){
 						op = "IS";
 					}
+					else if(Array.isArray(bindings[tBind])){
+						op = "IN";
+					}
 				}
 				else value = mysql.escape(value);
-				
+
 				// Add the pre and post values
 				value = pre+value+post;
 			}
