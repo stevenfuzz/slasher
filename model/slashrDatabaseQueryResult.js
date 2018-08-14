@@ -47,6 +47,9 @@ module.exports = class slashrDatabaseQueryResult{
 	toArray(){
 		return this._metadata.rows;
 	}
+	map(fn){
+		return this._metadata.rows.map((value)=>fn(value));
+	}
 }
 
 

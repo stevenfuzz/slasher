@@ -234,11 +234,11 @@ module.exports = class slashrEntity{
 		if(typeof key === "object"){
 			let nKey = {};
 			for(let name in key){
-				let  col = this._formatPropertyKeyToDatabaseColumn(name);
-				name = this._formatPropertyKey(name);
-				if(options.bindings[name]) throw("Error initializing entity '"+this._metadata.name+"' by database row. A binding key '"+name+"' was given and would be overwritten.");
-				options.bindings[name] = key[name];
-				nKey[col] = ":"+name;
+				let col = this._formatPropertyKeyToDatabaseColumn(name);
+				let pKey = this._formatPropertyKey(name);
+				if(options.bindings[pKey]) throw("Error initializing entity '"+this._metadata.name+"' by database row. A binding key '"+name+"' was given and would be overwritten.");
+				options.bindings[pKey] = key[name];
+				nKey[col] = ":"+pKey;
 			}
 			key = nKey;
 		}

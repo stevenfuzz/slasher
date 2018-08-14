@@ -61,8 +61,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 					let nKeys = [];
 					for(let i in value){
 						let nKey = "_"+key+kIdx;
-						bindings[nKey] = value;
+						bindings[nKey] = value[i];
 						nKeys.push(":"+nKey);
+						kIdx++;
 					}
 					query = query.replace(":"+key, "("+nKeys.join(",")+")");
 				}

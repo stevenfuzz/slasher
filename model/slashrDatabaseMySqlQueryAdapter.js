@@ -9,6 +9,9 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 	whr(expression){return this.where(expression);}
 	jn(table, expression){return this.join(table, expression);}
 	ord(values){return this.orderBy(values);}
+	dec(column, value){return this.decrement(column,value);}
+	inc(column, value){return this.increment(column,value);}
+
 	// Run will execute the query
 	async run(options){
 		options = (options) || {};
@@ -17,7 +20,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		if(options && options.bindings) this.addBindings(options.bindings);
 		
 		// Create the query
-		let qryStr = this.toString();
+		let qryStr = this.toString(options);
 		
 		// Get the bindings, for insert / update bindings are created during toString
 		options.bindings = this.getBindings();
@@ -105,7 +108,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		let tBindName = "";
 		switch(this._metadata.type){
 			case 'update':
-				if(! this._metadata.parts.values) throw new frak("Cannot build query. SET must be called with column name value array.");
+				if(! this._metadata.parts.values && ! this._metadata.parts.increment && ! this._metadata.parts.decrement) throw("Cannot build query. SET must be called with column name value array, increment, or decrement.");
 				bindName = 'val';
 				bindCount = 0;
 				valueArr = [];
@@ -115,6 +118,12 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					valueArr.push(key+" = :"+tBindName);					
 					this.addBinding(tBindName, this._metadata.parts.values[key]);
 				}
+				for(let key in this._metadata.parts.increment){
+					valueArr.push(`${key} = ${key} + ${this._metadata.parts.increment[key]}`);	
+				}
+				for(let key in this._metadata.parts.decrement){
+					valueArr.push(`${key} = ${key} - ${this._metadata.parts.increment[key]}`);	
+				}	
 				
 				qry += "\nSET "+valueArr.join(", ");
 
@@ -242,6 +251,27 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		this._metadata.parts.from = this._parseParameterTable(table, alias);
 		return this;
 	}
+	// Will increment / decrement like column = column + column so that an incremented value is no overwritten
+	// Can be a simple column, or an array of columns, or an object or columns and values
+	increment(column, value){
+		return this._incDec(column, value, "increment")
+	}
+	decrement(column, value){
+		this._incDec(column, value, "decrement");
+	}
+	_incDec(column,value, type){
+		let val = {};
+		if(Array.isArray(column)){
+			for(let i in column){
+				val[column[i]] = 1;
+			}
+		}
+		else if(typeof column === "object") val = column;
+		else val[column] = value || 1;
+		this._metadata.type = 'update';
+		this._metadata.parts[type] = val;
+		return this;
+	}
 	
 	insert(table, alias){
 		this._metadata.type = 'insert';
@@ -323,7 +353,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			return expression.toString();
 		}
 		else if(typeof expression === "string") return expression;
-		else if(typeof expression !== "object") throw new frak("Expression must be expression, string, or name/value array");
+		else if(typeof expression !== "object") throw("Expression must be expression, string, or name/value array");
 
 		// Get the bindings to check for syntax
 		let bindings = this.getBindings();
@@ -356,7 +386,9 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 
  				if(value.startsWith(":")){
 					let tBind = value.slice(1, value.length).trim();
-					if(bindings[tBind] === undefined) throw("Could not find bind variable '"+value+"'.");
+					if(bindings[tBind] === undefined){
+						throw("Could not find bind variable '"+value+"'.");
+					} 
 					if(bindings[tBind] === null){
 						op = "IS";
 					}
