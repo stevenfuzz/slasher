@@ -231,6 +231,12 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		this._metadata.parts.orderBy = values;
 		return this;
 	}
+	page(page, resultsPerPage = 20){
+		if(page == 1) this.limit(resultsPerPage);
+		else{
+			this.limit((page - 1) * resultsPerPage, resultsPerPage);
+		}
+	}
 	limit(offset, rowCount = 0){
 		if(! rowCount){
 			rowCount = offset;
