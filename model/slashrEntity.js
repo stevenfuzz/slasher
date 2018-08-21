@@ -18,7 +18,7 @@ module.exports = class slashrEntity{
 		this._metadata.relatatedKeys = {};
 		this._metadata.relationships = {};
 		
-		console.log("TODO: Add entity in config");
+		//console.log("TODO: Add entity in config");
 		let entities = {};
 		let tblName = null;
 		
@@ -243,6 +243,15 @@ module.exports = class slashrEntity{
 			key = nKey;
 		}
 		await row.init(key, options);
+
+		if(row.isNew() && typeof key === "object"){
+			// Set given values except for pk
+			for(let col in options.bindings){
+				if(col !== row.getPrimaryKey()){
+					this.set(col, options.bindings[col]);
+				}
+			}	
+		}
 	}
 	
 //	__call(name, arguments){
@@ -468,9 +477,6 @@ module.exports = class slashrEntity{
 		return (this._metadata.databaseRow);
 	}
 	_saveDatabaseRow(){
-
-		console.log("ROW EXISTS: ", this.databaseRowExists(), this.isUpdated());
-
 		if(this.databaseRowExists() && this.isUpdated()){
 			return this._metadata.databaseRow.save();
 		}

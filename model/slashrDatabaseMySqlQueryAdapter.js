@@ -24,6 +24,9 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		
 		// Get the bindings, for insert / update bindings are created during toString
 		options.bindings = this.getBindings();
+
+		// console.log(qryStr);
+		// console.log(options.bindings);
 		
 		let rslt = await this._metadata.database.executeQuery(qryStr, options);
 		
@@ -122,7 +125,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					valueArr.push(`${key} = ${key} + ${this._metadata.parts.increment[key]}`);	
 				}
 				for(let key in this._metadata.parts.decrement){
-					valueArr.push(`${key} = ${key} - ${this._metadata.parts.increment[key]}`);	
+					valueArr.push(`${key} = ${key} - ${this._metadata.parts.decrement[key]}`);	
 				}	
 				
 				qry += "\nSET "+valueArr.join(", ");
@@ -226,8 +229,15 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		this._metadata.parts.select = values;
 		return this;
 	}
-	orderBy(values){
+
+	orderBy(value, direction){
+		let values = {};
+		if(typeof value === "object") values = value;
+		else{
+			values[value] = direction;
+		}
 		this._metadata.type = 'select';
+		console.log(values);
 		this._metadata.parts.orderBy = values;
 		return this;
 	}
@@ -263,7 +273,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return this._incDec(column, value, "increment")
 	}
 	decrement(column, value){
-		this._incDec(column, value, "decrement");
+		return this._incDec(column, value, "decrement");
 	}
 	_incDec(column,value, type){
 		let val = {};

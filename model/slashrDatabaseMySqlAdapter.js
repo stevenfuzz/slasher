@@ -35,6 +35,9 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		
 		let bindings = {};
 		// Format the bind values and query
+// console.log(query);
+// console.log(options.bindings);
+
 		if(options.bindings){
 			for(let key in options.bindings){
 				let value = options.bindings[key];

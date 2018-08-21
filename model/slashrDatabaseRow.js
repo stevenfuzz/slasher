@@ -19,6 +19,7 @@ module.exports = class slashrDatabaseRow{
 			let colData = {};
 			colData.type = col.type;
 			colData.md5 = null;
+			colData.default = col.COLUMN_DEFAULT || null;
 			this._metadata.columns[name] = colData;
 			this._metadata.column[name] = null;
 			this._metadata.isNew = true;
@@ -65,11 +66,26 @@ module.exports = class slashrDatabaseRow{
 		let updates = false;
 		for(let name in this._metadata.columns){
 			let state = this._metadata.columns[name];
-			let newVal = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : this.hash(this._metadata.column[name]);
+			let val = (this._metadata.column[name] === null || this._metadata.column[name] === undefined) ? null : this._metadata.column[name];
+			
+			// See if a default should be set
+			// TODO: This is probably mysql dependant
+			if(val === null && state.default){
+				console.log("");
+				switch(state.default){
+					case "CURRENT_TIMESTAMP":
+						val = new Date();
+					break;
+					default:
+						val = state.default;
+				}
+				this._metadata.column[name] = val;
+			}
+			let newVal = (val === null) ? null : this.hash(val);
 			if(state.md5 != newVal){
 				if(this.isNew() && name == this._metadata.autoIncrement) throw("Cannot run query. Auto Increment column '"+name+"' can't be directly set.");
 				updates = updates || {};
-				updates[name] = this.formatInsertValue(this._metadata.column[name], this._metadata.columns[name].type);
+				updates[name] = this.formatInsertValue(val, this._metadata.columns[name].type);
 			}
 		}
 		if(updates){
@@ -89,12 +105,13 @@ module.exports = class slashrDatabaseRow{
 				if(this.isNew()){
 					if(this._metadata.autoIncrement){
 						if(! res.insertId) throw("Error saving row. Insert id for autoIncrement column '"+this._metadata.autoIncrement+"' not found.");
+						let iK = this._metadata.autoIncrement;
+						this._metadata.column[iK] = res.insertId;
+						updates[iK] = res.insertId;
 					}
-					let iK = this._metadata.autoIncrement;
-					this._metadata.column[iK] = res.insertId;
-					updates[iK] = res.insertId;
 					this._metadata.isNew = false;	
 				}
+
 				for(let name in updates){
 					this._metadata.columns[name].md5 = this.hash(updates[name]);
 				}

@@ -33,6 +33,13 @@ module.exports = class slashrDatabaseQuery{
 		this.addBindings(values);
 		return this;
 	}
+	bind(name, value){
+		let values = {};
+		if(typeof name === "object") values = name;
+		else values[name] =  value;
+		this.addBindings(values);
+		return this;
+	}
 	binding(name, value){
 		this.addBinding(name, value);
 		return this;
