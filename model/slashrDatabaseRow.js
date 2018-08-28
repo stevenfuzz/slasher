@@ -71,7 +71,6 @@ module.exports = class slashrDatabaseRow{
 			// See if a default should be set
 			// TODO: This is probably mysql dependant
 			if(val === null && state.default){
-				console.log("");
 				switch(state.default){
 					case "CURRENT_TIMESTAMP":
 						val = new Date();

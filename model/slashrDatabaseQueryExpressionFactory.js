@@ -1,4 +1,4 @@
-module.exports = class slashrDatabaseQueryFactory{
+module.exports = class slashrDatabaseQueryExpressionFactory{
 	constructor(database){
 		this._metadata = {
 			database: database
@@ -6,14 +6,11 @@ module.exports = class slashrDatabaseQueryFactory{
 		let self = this;
 		return new Proxy(function(){}, {
 			get : function(obj, prop){
-				let qry = self._metadata.database._getQueryFactory();
+				let qry = self._metadata.database._getQueryExpressionFactory();
 				return qry[prop];
 			},
 			apply: function(obj, context, args){
-				if(args.length > 0){
-					
-				}
-				return self._metadata.database._getQueryFactory();
+				return self._metadata.database._getQueryExpressionFactory();
 			}
 		});
 	}

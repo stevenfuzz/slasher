@@ -5,6 +5,8 @@ module.exports = class slashrDatabaseQuery{
 			bindings: {},
 			parts: {}
 		};
+		let slashrDatabaseQueryExpressionFactory = require("./slashrDatabaseQueryExpressionFactory");
+		this.expression = this.exp = new slashrDatabaseQueryExpressionFactory(this);
 	}
 
 	// Abstract

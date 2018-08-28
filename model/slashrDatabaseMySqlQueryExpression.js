@@ -1,8 +1,52 @@
-const slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseQueryExpression");
-module.exports = class slashrDatabaseMySqlQueryExpression extends{
+const slashrDatabaseQueryExpression = require("./slashrDatabaseQueryExpression");
+const slashrDatabaseQuery = require("./slashrDatabaseQuery");
+module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabaseQueryExpression{
+	constructor(database){
+		super(database);
+		let self = this;
+		//TODO: Remove global, use Slashr.utils instead 
+		let utils = global.slashr.utils();
+		return new Proxy(this, {
+			getPrototypeOf(target) {
+				return slashrDatabaseMySqlQueryExpression.prototype;
+			},
+			get : function(obj, prop){
+				console.log("PROP PROP PROP",prop, JSON.stringify(prop));
+				if(self[prop]) return self[prop];
+				prop = prop.trim().lowercase();
 
+				if (prop === 'or' || prop === 'and' || prop === 'if'){
+					return self[`${prop}X`];
+				}
+				else if(prop.startsWith("or")){
+					let fn = utils.str.toCamelCase(prop.substring(2));
+					return (...args) => {self.or(
+							self.db.exp[fn](...args)
+						);
+					}
+					// return $this->or(call_user_func_array([$this->db->qry->exp,$fn], $arguments));
+				}
+				else if(prop.startsWith("or")){
+					let fn = utils.str.toCamelCase(prop.substring(3));
+					return (...args) => {self.or(
+							self.db.exp[fn](...args)
+						);
+					}
+					// return call_user_func_array([$this,$fn], $arguments);
+				}
+				else{
+					throw (`slashrDatabaseQueryExpressionSqlAdapter method '${prop}' not found.`);
+				}
+
+				return "";
+			},
+			apply: function(obj, context, args){
+				throw("slashrDatabaseMySqlQueryExpression apply error");
+			}
+		});
+	}
 // PROXY
-//	final public function __call($name, $arguments){
+//	final public __call($name, $arguments){
 //		$utils = blr::utils();
 //		$name = strtolower(trim($name));
 //		if ($name == 'or' || $name == 'and' || $name == 'if'){
@@ -18,49 +62,49 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends{
 //			return call_user_func_array([$this,$fn], $arguments);
 //		}
 //		else{
-//			throw new frak("blrDatabaseQueryExpressionSqlAdapter method '{$name}' not found.");
+//			throw ("blrDatabaseQueryExpressionSqlAdapter method '{$name}' not found.");
 //		}
 //	}
 
 	// orX and andX use __call for or / and
-//	abstract function orX(expression);
-//	abstract function andX(expression);
-//	abstract function equals(x,y);
-//	abstract function notEquals(x,y);
-//	abstract function lessThan(x,y);
-//	abstract function lessThanOrEquals(x,y);
-//	abstract function greaterThan(x,y);
-//	abstract function greaterThanOrEquals(x,y);
-//	abstract function in(x,y);
-//	abstract function notIn(x,y);
-//	abstract function exists(x);
-//	abstract function notExists(x);
-//	abstract function isNull(x);
-//	abstract function isNotNull(x);
-//	abstract function like(x,y);
-//	abstract function notLike(x,y);
+//	abstract orX(expression);
+//	abstract andX(expression);
+//	abstract equals(x,y);
+//	abstract notEquals(x,y);
+//	abstract lessThan(x,y);
+//	abstract lessThanOrEquals(x,y);
+//	abstract greaterThan(x,y);
+//	abstract greaterThanOrEquals(x,y);
+//	abstract in(x,y);
+//	abstract notIn(x,y);
+//	abstract exists(x);
+//	abstract notExists(x);
+//	abstract isNull(x);
+//	abstract isNotNull(x);
+//	abstract like(x,y);
+//	abstract notLike(x,y);
 //	
-//	abstract function min(x);
-//	abstract function max(x);
-//	abstract function count(x);
-//	abstract function countDistinct(x);
-//	abstract function ifX(x, y, z);
+//	abstract min(x);
+//	abstract max(x);
+//	abstract count(x);
+//	abstract countDistinct(x);
+//	abstract ifX(x, y, z);
 	
 	// Abbrs
-	function eq(x,y){return this.equals(x,y);}
-	function neq(x,y){return this.notEquals(x,y);}
-	function lt(x,y){return this.lessThan(x,y);}
-	function lte(x,y){return this.lessThanOrEqual(x,y);}
-	function gt(x,y){return this.greaterThan(x,y);}
-	function gte(x,y){return this.greaterThanOrEquals(x,y);}
-	function nin(x,y){return this.notIn(x,y);}
-	function ex(x){return this.exists(x);}
-	function nex(x){return this.notExists(x);}
+	eq(x,y){return this.equals(x,y);}
+	neq(x,y){return this.notEquals(x,y);}
+	lt(x,y){return this.lessThan(x,y);}
+	lte(x,y){return this.lessThanOrEqual(x,y);}
+	gt(x,y){return this.greaterThan(x,y);}
+	gte(x,y){return this.greaterThanOrEquals(x,y);}
+	nin(x,y){return this.notIn(x,y);}
+	ex(x){return this.exists(x);}
+	nex(x){return this.notExists(x);}
 	
-	function nl(x){return this.isNull(x);}
-	function nnl(x){return this.isNotNull(x);}
-	function lk(x){return this.like(x);}
-	function nlk(x){return this.notLike(x);}
+	nl(x){return this.isNull(x);}
+	nnl(x){return this.isNotNull(x);}
+	lk(x){return this.like(x);}
+	nlk(x){return this.notLike(x);}
 	
 	orX(expression){
 		return this.andOrX("or", expression);
@@ -71,7 +115,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends{
 	}
 	_andOrX(condition, expression){
 		let expStr = "";
-		if(expression instanceof "slashrDatabaseQueryExpression"){
+		if(expression instanceof slashrDatabaseQueryExpression){
 			expStr = expression.toString();
 			if(expression.getExpressionCount() > 1) expStr = "("+expStr+")";
 		}
@@ -113,29 +157,29 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends{
 		return this;
 	}
 	in(x, y){
-		return this.inNotIn("IN", x, y);
+		return this._inNotIn("IN", x, y);
 	}
 	notIn(x, y){
-		return this.inNotIn("NOT IN", x, y);
+		return this._inNotIn("NOT IN", x, y);
 	}
 	_inNotIn(condition, x, y){
 		let expStr = y;
-		if(y instanceof "slashrDatabaseQuery") expStr = y.toString();
-		else if(y instanceof 'array'){
+		if(y instanceof slashrDatabaseQuery) expStr = y.toString();
+		else if(Array.isArray(y)){
 			for(let i in y){
-				if(! is_numeric(y[i])) y[i] = "'"+val+"'";
+				if(isNaN(y[i])) y[i] = "'"+val+"'";
 			}
-			expStr = implode(",",y);
+			expStr = y.join(",");
 		}
-		if(! expstr instanceof 'string') throw new frak("value for {condition} must be either string / array / or expression.");
+		if(typeof expStr !== "string") throw("value for {condition} must be either string / array / or expression.");
 		this.addPart(x+" "+condition+" ("+expStr+")");
 		return this;
 	}
 	exists(x){
-		return this.existsNotExists("EXISTS", x);
+		return this._existsNotExists("EXISTS", x);
 	}
 	notExists(x){
-		return this.existsNotExists("NOT EXISTS", x);
+		return this._existsNotExists("NOT EXISTS", x);
 	}
 	_existsNotExists(condition, x){
 		let expStr = x;
@@ -171,7 +215,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends{
 		else if(x instanceof 'string'){
 			x = x;
 		}
-		if(! is_string(x)) throw new frak("contition value for mySql IF() must be either string or expression.");
+		if(! is_string(x)) throw ("contition value for mySql IF() must be either string or expression.");
 
 		return "IF("+x+","+y+","+z+")";
 	}
@@ -181,14 +225,13 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends{
 	count(x){throw("not implemented");}
 	countDistinct(x){throw("not implemented");}
 
-	toString(options = array()){
+	toString(options = {}){
 		let retStr = "";
 		let i = 1;
 		for(let p in this.parts){
-			let part = parts[i];
-			if(i > 1) retStr += (part.type == "or") ? " OR " : " AND ";
+			let part = this.parts[p];
+			if(p > 0) retStr += (part.type === "or") ? " OR " : " AND ";
 			retStr += part.expression;
-			i++;
 		}
 		return retStr;
 	}

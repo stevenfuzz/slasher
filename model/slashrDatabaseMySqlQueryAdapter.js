@@ -32,6 +32,11 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		
 		return rslt;
 	}
+
+	_getQueryExpressionFactory(){
+		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
+		return new slashrDatabaseMySqlQueryExpression(this);
+	}
 	
 	
 	toString(){
@@ -237,7 +242,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			values[value] = direction;
 		}
 		this._metadata.type = 'select';
-		console.log(values);
 		this._metadata.parts.orderBy = values;
 		return this;
 	}
@@ -363,9 +367,10 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return ret;
 	}
 	_expressionToString(expression){
+		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
 		let mysql = require('mysql');
-		let slashrDatabaseQueryExpression = require("./slashrDatabaseQueryExpression");
-		if(expression instanceof slashrDatabaseQueryExpression){
+
+		if(expression instanceof slashrDatabaseMySqlQueryExpression){
 			return expression.toString();
 		}
 		else if(typeof expression === "string") return expression;

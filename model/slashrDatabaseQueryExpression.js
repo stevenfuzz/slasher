@@ -1,4 +1,4 @@
-module.exports = class mingblocDatabaseQueryExpression{
+module.exports = class slahsrDatabaseQueryExpression{
 	constructor(database){
 		this._metadata = {
 			database: database,
@@ -10,7 +10,7 @@ module.exports = class mingblocDatabaseQueryExpression{
 	static factory(database){
 		let adapter = database.getAdapter();
 		if(! adapter) throw("Error with slashr database query expression factory, no adapter given.");
-		switch($adapter){
+		switch(adapter){
 			case "mysql":
 				return new slashrDatabaseQueryExpressionMySqlAdapter(this._metadata.database);
 				break;
@@ -23,7 +23,10 @@ module.exports = class mingblocDatabaseQueryExpression{
 			type: type,
 			expression: expression,
 		};
-		this._metadata.parts.push(expression);
+		this._metadata.parts.push(part);
+	}
+	get parts(){
+		return this._metadata.parts;
 	}
 	isEmpty(){
 		return (this._metadata.parts.length);

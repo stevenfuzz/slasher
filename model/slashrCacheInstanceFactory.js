@@ -29,7 +29,6 @@ module.exports = class slashrCacheInstanceFactory{
 		if(! config.cache) throw("Cache config not found.");
 		switch(config.cache.adapter){
 			case "redis":
-				console.log("getting the adapter");
 				let slashrCacheRedisAdapter = require("./slashrCacheRedisAdapter");
 				return new slashrCacheRedisAdapter(config.cache);
 				break;

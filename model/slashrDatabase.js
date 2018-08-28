@@ -1,6 +1,5 @@
 module.exports = class slashrDatabase{
 	constructor(config){
-		console.log(config);
 		if(! config.database) throw("No Database Found.");
 		this._metadata = {
 			database : config.database

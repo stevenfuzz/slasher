@@ -21,8 +21,6 @@ module.exports = class slashrControllerActionRequest{
 
 	}
 	init(route, req){
-		console.log("init requrest");
-
 		this._metadata.method = req.req;
 		this._metadata.url = req.url;
 		this._metadata.controller = route.controller;
@@ -34,7 +32,6 @@ module.exports = class slashrControllerActionRequest{
 		console.log("TODO: Make sure controllers and requests are per instance based.");
 
 		if(req.fields){
-			console.log(req.fields._slashrFormMetadata);
 			if(req.fields._slashrFormMetadata){
 				req.fields._slashrFormMetadata = JSON.parse(req.fields._slashrFormMetadata);
 				for(let name in req.fields){
@@ -47,7 +44,6 @@ module.exports = class slashrControllerActionRequest{
 								if(req.fields[name] && req.fields[name] != ""){
 									let d = new Date();
 									d.setTime(req.fields[name]);
-									console.log(d);
 									this.data.post[name] = d;
 								}
 								else this.data.post[name] = null;
