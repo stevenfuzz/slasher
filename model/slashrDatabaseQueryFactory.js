@@ -11,7 +11,7 @@ module.exports = class slashrDatabaseQueryFactory{
 			},
 			apply: function(obj, context, args){
 				if(args.length > 0){
-					
+					return self._metadata.database.executeQuery(...args);
 				}
 				return self._metadata.database._getQueryFactory();
 			}

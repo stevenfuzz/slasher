@@ -13,17 +13,17 @@ module.exports = class slashrDatabaseQuery{
 	run(){throw("slashr database run not found in adapter");}
 	
 	// Methods
-	factory(database){
-		let adapter = this._metadata.database.getAdapter();
-		if(! adapter) throw("Error with slashr database query factory, no adapter given.");
-		switch(adapter){
-			case "mysql":
-				return new mintspaceDatabaseMysSqlQueryAdapter(this._metadata.database);
-				break;
-			default:
-				throw new frak("Database query adapter for '{$adapter}' not found.");
-		}
-	}
+	// factory(database){
+	// 	let adapter = this._metadata.database.getAdapter();
+	// 	if(! adapter) throw("Error with slashr database query factory, no adapter given.");
+	// 	switch(adapter){
+	// 		case "mysql":
+	// 			return new slashrDatabaseMysSqlQueryAdapter(this._metadata.database);
+	// 			break;
+	// 		default:
+	// 			throw new frak("Database query adapter for '{$adapter}' not found.");
+	// 	}
+	// }
 
 	addBindings(values){
 		for(let key in values){
