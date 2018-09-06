@@ -40,6 +40,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 	
 	
 	toString(){
+		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
 		if(! this._metadata.type) throw("Cannot run query. No query type found. Please call select, update, insert, or delete to start query.");
 		let qry = "";
 		let hasFrom = false;
@@ -197,8 +198,19 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			case 'select':
 				if(this._metadata.parts.orderBy){
 					let orderByArr = [];
-					for(let col in this._metadata.parts.orderBy){
-						let dir = this._metadata.parts.orderBy[col].toUpperCase();
+					for(let i in this._metadata.parts.orderBy){
+						let col = i;
+						let dir = "";
+						if(Array.isArray(this._metadata.parts.orderBy[i])){
+							if(this._metadata.parts.orderBy[i].length != 2) throw("Database Query Error: Order by should only have nodes of array length 2");
+							col = this._metadata.parts.orderBy[i][0];
+							dir = this._metadata.parts.orderBy[i][1];
+							if(col instanceof slashrDatabaseMySqlQueryExpression){
+								col = col.toString();
+							}
+						}
+						else dir = this._metadata.parts.orderBy[col].toUpperCase();
+
 						switch(dir){
 							case "ASC_NULLS_LAST":
 								dir = "ASC"

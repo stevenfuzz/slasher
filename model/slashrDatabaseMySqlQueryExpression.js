@@ -11,9 +11,10 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 				return slashrDatabaseMySqlQueryExpression.prototype;
 			},
 			get : function(obj, prop){
-				console.log("PROP PROP PROP",prop, JSON.stringify(prop));
 				if(self[prop]) return self[prop];
-				prop = prop.trim().lowercase();
+				if(typeof props !== 'string') return null;
+
+				prop = prop.trim().toLowerCase();
 
 				if (prop === 'or' || prop === 'and' || prop === 'if'){
 					return self[`${prop}X`];
@@ -197,7 +198,15 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		this.addPart(x+" IS NOT NULL");
 		return this;
 	}
-
+	match(x, y, options){
+		if(options) console.log("options@@@@@@@@@@",options.mode);
+		let mode = (options.mode && options.mode.toLowerCase() === "boolean") ? " IN BOOLEAN MODE" : "";
+		this.addPart(`MATCH(${x}) AGAINST (${y}${mode})`);
+		return this;
+	}
+	matchBoolean(x,y){
+		return this.match(x,y,{mode: "boolean"});
+	}
 	like(x, y){
 		this.addPart(x+" LIKE "+y);
 		return this;

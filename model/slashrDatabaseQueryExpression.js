@@ -18,11 +18,12 @@ module.exports = class slahsrDatabaseQueryExpression{
 				throw new frak("Database query expression adapter for '"+adapter+"' not found.");
 		}
 	}
-	addPart(expression, type = "and"){
+	addPart(expression, type = "and", options){
 		let part = {
 			type: type,
 			expression: expression,
 		};
+		if(options) part.options = options;
 		this._metadata.parts.push(part);
 	}
 	get parts(){
