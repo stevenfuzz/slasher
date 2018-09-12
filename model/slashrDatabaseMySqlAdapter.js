@@ -70,22 +70,26 @@ console.log(options.bindings);
 					}
 					query = query.replace(":"+key, "("+nKeys.join(",")+")");
 				}
-				else throw("Query Error: Unable to parse binding value for key: "+key+".");
+				else if(value instanceof Date){
+					bindings[key] = this.formatColumnInsertValue(value, "datetime");
+					// console.log(bindings[key]);
+					// throw("SDLKFJSLDKJF");
+				}
+				else{
+					throw("Query Error: Unable to parse binding value for key: "+key+".");
+				} 
 			}
 		}
 		
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];
-		// console.log(query);
-		// console.log(bindings);
+
 		query = query.replace(/:\w+/g, function(match) {
 			let key = match.slice(1);
 			if(bindings[key] === undefined) throw("Query Error: Query parameter "+match+" not found in bindings.");
 			bindArr.push(bindings[key]);
 			return "?";
-		});		
-		
-		
+		});				
 
 		let rslt = new Promise(function(resolve, reject){
 			self.connector.getConnection(

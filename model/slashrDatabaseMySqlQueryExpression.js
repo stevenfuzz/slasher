@@ -12,34 +12,40 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 			},
 			get : function(obj, prop){
 				if(self[prop]) return self[prop];
-				if(typeof props !== 'string') return null;
+				if(typeof prop !== 'string') return null;
 
 				prop = prop.trim().toLowerCase();
-
 				if (prop === 'or' || prop === 'and' || prop === 'if'){
 					return self[`${prop}X`];
 				}
 				else if(prop.startsWith("or")){
 					let fn = utils.str.toCamelCase(prop.substring(2));
-					return (...args) => {self.or(
-							self.db.exp[fn](...args)
+					let exp = self._metadata.database.exp();
+					return (...args) => { 
+						// return exp[fn](...args)
+						return self.orX(
+							exp[fn](...args)
 						);
 					}
 					// return $this->or(call_user_func_array([$this->db->qry->exp,$fn], $arguments));
 				}
-				else if(prop.startsWith("or")){
+				else if(prop.startsWith("and")){
 					let fn = utils.str.toCamelCase(prop.substring(3));
-					return (...args) => {self.or(
-							self.db.exp[fn](...args)
+					let exp = self._metadata.database.exp();
+					return (...args) => { 
+						return self.andX(
+							
+							exp[fn](...args)
 						);
 					}
 					// return call_user_func_array([$this,$fn], $arguments);
 				}
 				else{
+					return null;
 					throw (`slashrDatabaseQueryExpressionSqlAdapter method '${prop}' not found.`);
 				}
 
-				return "";
+				return null;
 			},
 			apply: function(obj, context, args){
 				throw("slashrDatabaseMySqlQueryExpression apply error");
@@ -101,26 +107,32 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 	nin(x,y){return this.notIn(x,y);}
 	ex(x){return this.exists(x);}
 	nex(x){return this.notExists(x);}
+	btw(x,y,z){return this.between(x,y,z);}
 	
 	nl(x){return this.isNull(x);}
 	nnl(x){return this.isNotNull(x);}
 	lk(x){return this.like(x);}
 	nlk(x){return this.notLike(x);}
 	
+	
 	orX(expression){
-		return this.andOrX("or", expression);
+		return this._andOrX("or", expression);
 	}
-
 	andX(expression){
-		return this.andOrX("and", expression);
+		return this._andOrX("and", expression);
 	}
 	_andOrX(condition, expression){
 		let expStr = "";
-		if(expression instanceof slashrDatabaseQueryExpression){
+		
+		console.log(expression, condition, expression.toString());
+		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
+		console.log(expression instanceof slashrDatabaseMySqlQueryExpression);
+		
+		if(expression instanceof slashrDatabaseMySqlQueryExpression){
 			expStr = expression.toString();
 			if(expression.getExpressionCount() > 1) expStr = "("+expStr+")";
 		}
-		else if(expression instanceof 'string'){
+		else if(typeof expression === 'string'){
 			expStr = expression;
 		}
 		else throw("Query Expression '{condition}' error: Must be expression or string");
@@ -165,7 +177,9 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 	}
 	_inNotIn(condition, x, y){
 		let expStr = y;
-		if(y instanceof slashrDatabaseQuery) expStr = y.toString();
+		if(y instanceof slashrDatabaseQuery){
+			expStr = y.toString();
+		} 
 		else if(Array.isArray(y)){
 			for(let i in y){
 				if(isNaN(y[i])) y[i] = "'"+val+"'";
@@ -214,6 +228,11 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 
 	notLike(x, y){
 		this.addPart(x+" NOT LIKE "+y);
+		return this;
+	}
+
+	between(x, y, z){
+		this.addPart(`${x} BETWEEN ${y} AND ${z}`);
 		return this;
 	}
 
