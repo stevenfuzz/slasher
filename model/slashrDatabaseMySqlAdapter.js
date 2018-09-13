@@ -214,10 +214,22 @@ console.log(options.bindings);
 
 		return ret;
 	}
+	_formatTableName(name){
+		return name.trim().replace(/_/g,"").toLowerCase();
+	}
 	async getTableMetadata(name, options){
 		let schema = await this.getSchema();
 		if(! name) throw("Could not get table info. No table name provided.");
-		if(! schema.tables[name]) throw("Could not get table info. Table not found in schema.");
+		if(! schema.tables[name]){
+			let nName = this._formatTableName(name);
+			console.log("TODO: Must be a better way for this");
+			console.log("loop",schema.tables);
+			for(let table in schema.tables){
+				console.log("check",this._formatTableName(table),name);
+				if(this._formatTableName(table) === nName) return schema.tables[table]; 
+			}
+			throw(`Could not get table info for ${name}. Table not found in schema.`);
+		}
 		return schema.tables[name];
 	}
 	_getColumnType(type){
@@ -337,6 +349,6 @@ console.log(options.bindings);
 	}
 	async tableExists(name){
 		let schema = await this.getSchema();
-		return (schema.tables[name]);
+		return (name in schema.tables) ;
 	}
 }

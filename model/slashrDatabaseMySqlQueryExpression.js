@@ -1,8 +1,10 @@
 const slashrDatabaseQueryExpression = require("./slashrDatabaseQueryExpression");
 const slashrDatabaseQuery = require("./slashrDatabaseQuery");
+const slashrDatabaseMySqlQueryAdapter = require("./slashrDatabaseMySqlQueryAdapter");
+
 module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabaseQueryExpression{
-	constructor(database){
-		super(database);
+	constructor(query){
+		super(query);
 		let self = this;
 		//TODO: Remove global, use Slashr.utils instead 
 		let utils = global.slashr.utils();
@@ -20,7 +22,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 				}
 				else if(prop.startsWith("or")){
 					let fn = utils.str.toCamelCase(prop.substring(2));
-					let exp = self._metadata.database.exp();
+					let exp = self._metadata.query.exp();
 					return (...args) => { 
 						// return exp[fn](...args)
 						return self.orX(
@@ -31,7 +33,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 				}
 				else if(prop.startsWith("and")){
 					let fn = utils.str.toCamelCase(prop.substring(3));
-					let exp = self._metadata.database.exp();
+					let exp = self._metadata.query.exp();
 					return (...args) => { 
 						return self.andX(
 							
@@ -113,6 +115,8 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 	nnl(x){return this.isNotNull(x);}
 	lk(x){return this.like(x);}
 	nlk(x){return this.notLike(x);}
+	dist(lat1,lon1,lat2,lon2){return this.distance(lat1,lon1,lat2,lon2)};
+	pt(lat,log){return this.point(lat,lon)};
 	
 	
 	orX(expression){
@@ -236,8 +240,50 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		return this;
 	}
 
+	// lat1,lon1,lat2,lon2
+	// lat1,lon1,p2
+	// p1, p2
+
+	_expressionToString(expression){
+		if(expression instanceof slashrDatabaseMySqlQueryExpression){
+			return expression.toString();
+		}
+		else if(expression instanceof slashrDatabaseQuery){
+			this._metadata.query.addBindings(expression.getBindings());
+			return `(${expression.toString()})`;
+		}
+		else return expression;
+	}
+
+	distance(lat1,lon1,lat2 = null,lon2 = null){
+		let p1 = null;
+		let p2 = null;
+		if(lat2 !== null && lon2 !== null){
+			p1 = this._point(lat1,lon1);
+			p2 = this._point(lat2,lon2);
+		}
+		else if(lat2 !== null){
+			p1 = this._point(lat1,lon1);
+			p2 = this._expressionToString(lat2);
+		}
+		else{
+			p1 = this._expressionToString(lat1);
+			p2 = this._expressionToString(lon1);
+		}
+		this.addPart(`st_distance_sphere(${p1},${p2})`);
+		return this;
+	}
+	// MySql is lon first, I don't get why...
+	_point(lat,lon){
+		return `POINT(${lat},${lon}`;
+	}
+	point(lat, lon){
+		this.addPart(this._point(lat,lon));
+		return this;
+	}
+
 	ifX(x, y, z){
-		if(x instanceof "blrDatabaseQueryExpression"){
+		if(x instanceof slashrDatabaseMySqlQueryExpression){
 			x = x.toString();
 		}
 		else if(x instanceof 'string'){

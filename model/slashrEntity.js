@@ -38,15 +38,20 @@ module.exports = class slashrEntity{
 			// By default, use a default database and use name as table name
 			this._metadata.db = {};
 			this._metadata.db.name = "default";
-			tblName = this._metadata.name;
-			if(! this.mdl.db.tableExists(tblName)){
+
+			if(! await this.mdl.db.tableExists(tblName)){
 				tblName = null;
-				tTblKey = this._formatPropertyKey(this._metadata.name);
+				let tTblKey = this._formatPropertyKey(this._metadata.name);
 				let schema = await this.mdl.db.getSchema();
-				for(let tbl of schema.tables){
-					if(this._formatPropertyKey(tbl.name) == tTblKey) tblName = tbl.name;
+				console.log(schema);
+				for(let i in schema.tables){
+					if(this._formatPropertyKey(schema.tables[i].name) == tTblKey){
+						tblName = schema.tables[i].name;
+						break;
+					} 
 				}
-			}			
+			}
+			else tblName = this._metadata.name;		
 		}
 		if(! tblName) throw("Unable to initialize entity by database table name '"+this._metadata.name+"'. Please enter this entity in config.");
 		this._metadata.db.tbl = tblName;
@@ -101,6 +106,13 @@ module.exports = class slashrEntity{
 		return name;
 	}
 	_formatPropertyKeyToDatabaseColumn(name){
+		name = this._formatPropertyKey(name);
+		if(this._metadata.properties[name] && this._metadata.properties[name].type == "column"){
+			return this._metadata.properties[name].column;
+		}
+		return null;
+	}
+	_formatPropertyKeyToDatabaseTable(name){
 		name = this._formatPropertyKey(name);
 		if(this._metadata.properties[name] && this._metadata.properties[name].type == "column"){
 			return this._metadata.properties[name].column;

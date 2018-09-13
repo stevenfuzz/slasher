@@ -1,4 +1,5 @@
 const slashrDatabaseQuery = require("./slashrDatabaseQuery");
+const slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
 module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQuery{
 	
 	// Abbrs
@@ -7,7 +8,8 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 	ins(table){return this.insert(table);}
 	frm(table){return this.from(table);}
 	whr(expression){return this.where(expression);}
-	jn(table, expression){return this.join(table, expression);}
+	jn(table, alias, expression){return this.join(table, alias, expression);}
+	ljn(table, alias, expression){return this.leftJoin(table, alias, expression);}
 	ord(values){return this.orderBy(values);}
 	dec(column, value){return this.decrement(column,value);}
 	inc(column, value){return this.increment(column,value);}
@@ -181,7 +183,9 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 						if(! joinTable) throw("Join table not found for SQL Join");
 						
 						// Add the on predicate
-						qry += joinTable+" ON "+this._expressionToString(value.expression);
+						 console.log("JOIN???? val", this._expressionToString(value.expression));
+						// throw("LSKDJF");
+						qry += this._expressionToString(joinTable)+" ON "+this._expressionToString(value.expression);
 					}
 					
 				}
@@ -361,6 +365,10 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 	}
 	_parseParameterTable(table, alias){
 		let ret = [];
+		if(table instanceof slashrDatabaseQuery){
+			this.addBindings(table.getBindings());
+			table = `(${table.toString()})`;
+		}
 		if(typeof table === 'object'){
 			for(let alias in table){
 				ret.push({
@@ -379,10 +387,14 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return ret;
 	}
 	_expressionToString(expression){
-		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
+		console.log("TODO: Should expressions be escaped? Inforce bind?");
 		let mysql = require('mysql');
 
 		if(expression instanceof slashrDatabaseMySqlQueryExpression){
+			return expression.toString();
+		}
+		else if(expression instanceof slashrDatabaseQuery){
+			throw("LSKDJF");
 			return expression.toString();
 		}
 		else if(typeof expression === "string") return expression;
@@ -416,7 +428,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 						value = value.slice(0, value.length - 1).trim();
 					}
 				}
-
  				if(value.startsWith(":")){
 					let tBind = value.slice(1, value.length).trim();
 					if(bindings[tBind] === undefined){
@@ -429,12 +440,12 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 						op = "IN";
 					}
 				}
-				else value = mysql.escape(value);
+				//else value = mysql.escape(value);
 
 				// Add the pre and post values
 				value = pre+value+post;
 			}
-			else value = mysql.escape(value);
+			//else value = mysql.escape(value);
 			tPredicateArr.push(key+" "+op+" "+value);
 		}
 		return tPredicateArr.join(" AND ");

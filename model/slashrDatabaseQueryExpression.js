@@ -1,7 +1,7 @@
 module.exports = class slahsrDatabaseQueryExpression{
-	constructor(database){
+	constructor(query){
 		this._metadata = {
-			database: database,
+			query: query,
 			parts: []
 		}
 
@@ -12,7 +12,7 @@ module.exports = class slahsrDatabaseQueryExpression{
 		if(! adapter) throw("Error with slashr database query expression factory, no adapter given.");
 		switch(adapter){
 			case "mysql":
-				return new slashrDatabaseQueryExpressionMySqlAdapter(this._metadata.database);
+				return new slashrDatabaseQueryExpressionMySqlAdapter(this._metadata.query);
 				break;
 			default:
 				throw new frak("Database query expression adapter for '"+adapter+"' not found.");

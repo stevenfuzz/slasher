@@ -26,6 +26,12 @@ module.exports = class slashrDatabaseQueryResult{
 	get rows(){
 		return this._metadata.rows;
 	}
+	get first(){
+		return this.firstRow;
+	}
+	get firstRow(){
+		return (! this.isEmpty()) ? this._metadata.rows[0] : null; 
+	}
 	get error(){
 		return this._metadata.error;
 	}
@@ -53,6 +59,7 @@ module.exports = class slashrDatabaseQueryResult{
 	each(fn){
 		return this.map(fn);
 	}
+	
 }
 
 

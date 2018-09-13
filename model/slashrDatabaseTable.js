@@ -1,5 +1,7 @@
 module.exports = class slashrDatabaseTable{
 	constructor(database, name, options){
+		// name = this._parseTableName(name);
+		console.log("Create database table with name",name);
 		this._metadata = {
 			database: database,
 			name: name,
@@ -15,6 +17,10 @@ module.exports = class slashrDatabaseTable{
 	metadata(){
 		return this._metadata;
 	}
+
+	// async _parseTableName(name){
+	// 	let schema = await this.getSchema();
+	// }
 	
 	async row(key){
 		let slashrDatabaseRow = require("./slashrDatabaseRow");
@@ -23,7 +29,9 @@ module.exports = class slashrDatabaseTable{
 		if(key) await row.init(key);
 		return row;
 	}
-	
+	get name(){
+		return this.getName();
+	}
 	getName(){
 		return this._metadata.name;
 	}
