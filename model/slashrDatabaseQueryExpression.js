@@ -26,6 +26,7 @@ module.exports = class slahsrDatabaseQueryExpression{
 		if(options) part.options = options;
 		this._metadata.parts.push(part);
 	}
+
 	get parts(){
 		return this._metadata.parts;
 	}

@@ -186,7 +186,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		} 
 		else if(Array.isArray(y)){
 			for(let i in y){
-				if(isNaN(y[i])) y[i] = "'"+val+"'";
+				if(isNaN(y[i])) y[i] = "'"+y[i]+"'";
 			}
 			expStr = y.join(",");
 		}

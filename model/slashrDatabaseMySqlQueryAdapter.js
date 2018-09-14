@@ -27,8 +27,8 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		// Get the bindings, for insert / update bindings are created during toString
 		options.bindings = this.getBindings();
 
-		console.log(qryStr);
-		console.log(options.bindings);
+		// console.log(qryStr);
+		// console.log(options.bindings);
 		
 		let rslt = await this._metadata.database.executeQuery(qryStr, options);
 		
@@ -394,7 +394,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 			return expression.toString();
 		}
 		else if(expression instanceof slashrDatabaseQuery){
-			throw("LSKDJF");
 			return expression.toString();
 		}
 		else if(typeof expression === "string") return expression;
