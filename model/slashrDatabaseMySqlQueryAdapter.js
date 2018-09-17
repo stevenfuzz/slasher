@@ -262,9 +262,21 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return this;
 	}
 	page(page, resultsPerPage = 20){
+		console.log(page, resultsPerPage);
 		if(page == 1) this.limit(resultsPerPage);
 		else{
 			this.limit((page - 1) * resultsPerPage, resultsPerPage);
+		}
+	}
+	pageRange(startPage, endPage, resultsPerPage){
+		if(startPage > endPage) throw("Query Error: Page range error, start page greater than end page")
+		let offset = (startPage - 1) * resultsPerPage;
+		resultsPerPage = ((endPage - startPage) + 1) * resultsPerPage;
+		// console.log("pageRange",offset, resultsPerPage);
+		// throw("SDLKFJLKSDJFH");
+		if(startPage == 1) this.limit(resultsPerPage);
+		else{
+			this.limit(offset, resultsPerPage);
 		}
 	}
 	limit(offset, rowCount = 0){
