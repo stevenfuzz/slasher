@@ -75,6 +75,9 @@ console.log(options.bindings);
 					// console.log(bindings[key]);
 					// throw("SDLKFJSLDKJF");
 				}
+				else if(value === null){
+					bindings[key] = null;
+				}
 				else{
 					throw("Query Error: Unable to parse binding value for key: "+key+".");
 				} 
@@ -333,10 +336,19 @@ console.log(options.bindings);
 				if(value) ret = JSON.stringify(value);
 				break;
 			case "datetime":
-				if(typeof value === 'object'){
-					ret = value.toISOString().substring(0, 19).replace('T', ' ')
+				if(! value) ret = null;
+				else{
+					let tDate = null;
+					if(value instanceof Date){
+						tDate = value;
+					}
+					else{
+						tDate = new Date(value);
+						console.log("date check",value,tDate, tDate.getTime());
+					}
+					console.log("Trying to conver:",tDate);
+					if(tDate) ret = tDate.toISOString().substring(0, 19).replace('T', ' ');
 				}
-				else throw("HANDLE DATETIME 2");
 				break;
 			case "boolean":
 				if(typeof value === "boolean") ret = (value) ? 1 : 0;
