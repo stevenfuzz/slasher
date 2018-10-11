@@ -28,15 +28,18 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 	}
 	async executeQuery(query, options){
 		let self = this;
+		let cacheKey = null;
+		let model = global.slashr.model();
 
 		// Get the query type
 		let queryType = this._getQueryType(query);
 		if(! queryType) throw("Could not find query type of query");
 		
 		let bindings = {};
+		let cacheTime = (queryType === "select" && options.cacheTime) ? options.cacheTime : null;
 		// Format the bind values and query
-console.log(query);
-console.log(options.bindings);
+// console.log(query);
+// console.log(options.bindings);
 
 		if(options.bindings){
 			for(let key in options.bindings){
@@ -84,22 +87,34 @@ console.log(options.bindings);
 			}
 		}
 		
+		// Check Cache
+		if(cacheTime){
+			let md5 = require("md5");
+			cacheKey = `slashrDatabaseQuery-${md5(JSON.stringify([query,options]))}`;
+			let cRslt = await model.cache.get(cacheKey);
+			if(cRslt){
+				console.log("FOUND QUERY CACHE!!!!!!!");
+				let slashrDatabaseQueryResult = require("./slashrDatabaseQueryResult");
+				return new slashrDatabaseQueryResult(cRslt, options);
+			}
+		}
+		console.log("NO QUERY CACHE!!!!!!!",query);
+
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];
-
 		query = query.replace(/:\w+/g, function(match) {
 			let key = match.slice(1);
 			if(bindings[key] === undefined) throw("Query Error: Query parameter "+match+" not found in bindings.");
 			bindArr.push(bindings[key]);
 			return "?";
-		});				
-
+		});	
+		
 		let rslt = new Promise(function(resolve, reject){
 			self.connector.getConnection(
 				function(err, connection) {
 					connection.query(query, 
 						bindArr,
-						function (error, results, fields) {
+						async function (error, results, fields) {
 							// And done with the connection.
 							connection.release();
 							
@@ -144,6 +159,12 @@ console.log(options.bindings);
 								case "delete":
 									resultSet.affectedRows = results.affectedRows;
 									break;
+							}
+
+							if(cacheTime){
+								await model.cache.set(cacheKey,resultSet,{
+									cacheTime: options.cacheTime
+								});
 							}
 							
 							rslt = new slashrDatabaseQueryResult(resultSet, options);

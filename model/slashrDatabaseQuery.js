@@ -3,6 +3,7 @@ module.exports = class slashrDatabaseQuery{
 		this._metadata = {
 			database: database,
 			bindings: {},
+			cacheTime: 0,
 			parts: {}
 		};
 		let slashrDatabaseQueryExpressionFactory = require("./slashrDatabaseQueryExpressionFactory");
@@ -52,5 +53,18 @@ module.exports = class slashrDatabaseQuery{
 	}
 	getBindings(){
 		return this._metadata.bindings;
+	}
+	cache(minutes){
+		return this.setCacheTime(minutes);
+	}
+	cacheTime(minutes){
+		return this.setCacheTime(minutes);
+	}
+	setCacheTime(minutes){
+		this._metadata.cacheTime = minutes;
+		return this;
+	}
+	getCacheTime(){
+		return this._metadata.cacheTime;
 	}
 }

@@ -29,8 +29,10 @@ class slashrUrlUtilities{
 
 class slashrStringUtilities{
 	toCamelCase(value){
+		value = this.toSlug(value);
 		value = value.replace(/-/g, " ").replace(/_/g, " ");
 		value = this.toUpperCaseWords(value);
+		
 		let tVals = value.split(" ");
 		if(tVals.length) tVals[0] = tVals[0].toLowerCase();
 		return tVals.join("");
@@ -38,21 +40,40 @@ class slashrStringUtilities{
 	toTitleCase(value){
 		let stopWords = ['of','a','the','and','an','or','nor','but','is','if','then','else','when', 'at','from','by','on','off','for','in','out','over','to','into','with'];
 		// Split the string into separate words
-		words = value.split(' ');
+		let words = value.split(' ');
 		for(let key in words){
 			// If this word is the first, or it's not one of our small words, capitalise it
 			// with ucwords().
-			if (key === 0 || stopWords.indexOf(words[key]) === -1) words[key] = this.upperCaseWords(words[key]);
+			if (key === 0 || stopWords.indexOf(words[key]) === -1) words[key] = this.toUpperCaseWords(words[key]);
 		}
 		// Join the words back into a string
-		newtitle = implode(' ', words);
+		newtitle = words.join(' ');
 		return newtitle;
 	}
 	toUpperCaseWords (str) {
-		return (str + '').replace(/^(.)|\s+(.)/g, function ($1) {
-			return $1.toUpperCase();
+		return (str + '').replace(/^(.)|\s+(.)/g, function (w) {
+			return w.toUpperCase();
 		});
 	}
+	toAlphanumeric(str,replaceWith=''){
+		return str.replace(/[^0-9a-z ]/gi, replaceWith)
+		.replace(/^-+/, '') 
+		.replace(/-+$/, '');
+	}
+
+	toSlug(str){
+		// str = this.toTitleCase(str);
+		return str.toLowerCase()
+		.replace(/[^\w\-]+/g, ' ')       // Remove all non-word chars
+		.replace(/\s+/g, '-')           // Replace spaces with -
+		.replace(/\-\-+/g, '-')         // Replace multiple - with single -
+		.replace(/^-+/, '')             // Trim - from start of text
+		.replace(/-+$/, '');            // Trim - from end of text
+	}
+	capitalize(w){
+		return w.replace(/^\w/, w => w.toUpperCase());
+	}
+	
 }
 
 class slashrFileUtilities{

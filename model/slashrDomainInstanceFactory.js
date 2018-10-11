@@ -18,7 +18,9 @@ module.exports = class slashrDomainInstanceFactory{
 
 				const actionExtend = {
 					model : global.slashr.model(),
-					mdl : global.slashr.model()
+					mdl : global.slashr.model(),
+					utils: global.slashr.utils(),
+					utilities: global.slashr.utils()
 				};
 		
 				// Add context to the controller class

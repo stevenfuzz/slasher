@@ -32,7 +32,9 @@ module.exports = class slashrController{
 			result : resultModel,
 			rslt : resultModel,
 			request : this.request,
-			req : this.request
+			req : this.request,
+			utils: this.utils,
+			utilities: this.utils
 		};
 			
 		// Extend the action

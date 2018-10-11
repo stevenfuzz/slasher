@@ -20,12 +20,14 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		
 		// Merge given bindings
 		if(options && options.bindings) this.addBindings(options.bindings);
+		if(options && options.cacheTime) this.setCacheTime(options.cacheTime);
 		
 		// Create the query
 		let qryStr = this.toString(options);
 		
 		// Get the bindings, for insert / update bindings are created during toString
 		options.bindings = this.getBindings();
+		options.cacheTime = this.getCacheTime();
 
 		// console.log(qryStr);
 		// console.log(options.bindings);

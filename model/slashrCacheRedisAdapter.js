@@ -7,7 +7,6 @@ module.exports = class slashrCacheRedisAdapter extends slashrCache{
 
 		let client = null;
 		try{
-			console.log("SDLKJFLSDKJFLKSJDFLJKSDFLKJSDLKJF");
 			client = redis.createClient(config);
 			if(! client) client = null;
 			client.on("connected",()=>{
@@ -39,21 +38,19 @@ module.exports = class slashrCacheRedisAdapter extends slashrCache{
 		};
 		
 		let t =  await getAsync(key, options);
-		console.log("HERE HERE HERE");
-		console.log(key);
-		console.log(t);
-
 		return t;
 	}
 	setValue(key, value, options = {}){
-		console.log("set key", key);
-		console.log("set value",value);
-		
 		value = JSON.stringify(value);
-		
 		this.getConnection().set(key, value);
 		if(options.cacheTime) this.getConnection().expire(key, (options.cacheTime * 60));
 		return true;
+	}
+	get(key, options){
+		return this.getValue(key, options);
+	}
+	set(key, value, options){
+		return this.setValue(key, value, options);
 	}
 	isConnected(){
 		let connection = this.getConnection();
