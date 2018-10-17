@@ -93,12 +93,12 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			cacheKey = `slashrDatabaseQuery-${md5(JSON.stringify([query,options]))}`;
 			let cRslt = await model.cache.get(cacheKey);
 			if(cRslt){
-				console.log("FOUND QUERY CACHE!!!!!!!");
+				console.log("FOUND QUERY CACHE!!!!!!!", cacheTime, query);
 				let slashrDatabaseQueryResult = require("./slashrDatabaseQueryResult");
 				return new slashrDatabaseQueryResult(cRslt, options);
 			}
 		}
-		console.log("NO QUERY CACHE!!!!!!!",query);
+		console.log("NO QUERY CACHE!!!!!!!",query, bindings);
 
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];

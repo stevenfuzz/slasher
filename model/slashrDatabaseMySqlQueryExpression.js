@@ -16,15 +16,16 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 				if(self[prop]) return self[prop];
 				if(typeof prop !== 'string') return null;
 
-				prop = prop.trim().toLowerCase();
-				if (prop === 'or' || prop === 'and' || prop === 'if'){
-					return self[`${prop}X`];
+				let nProp = prop.trim().toLowerCase();
+				if (nProp === 'or' || nProp === 'and' || nProp === 'if'){
+					return self[`${nProp}X`];
 				}
-				else if(prop.startsWith("or")){
-					let fn = utils.str.toCamelCase(prop.substring(2));
+				else if(nProp.startsWith("or")){
+					let fn = utils.str.uncapitalize(prop.substring(2));
 					let exp = self._metadata.query.exp();
 					return (...args) => { 
 						// return exp[fn](...args)
+						console.log(fn);
 						return self.orX(
 							exp[fn](...args)
 						);
@@ -32,7 +33,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 					// return $this->or(call_user_func_array([$this->db->qry->exp,$fn], $arguments));
 				}
 				else if(prop.startsWith("and")){
-					let fn = utils.str.toCamelCase(prop.substring(3));
+					let fn = utils.str.uncapitalize(prop.substring(3));
 					let exp = self._metadata.query.exp();
 					return (...args) => { 
 						return self.andX(
@@ -282,18 +283,33 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		return this;
 	}
 
+	findInSet(x, y){
+		// if(typeof x === 'string'){
+		// 	x = `'${x}'`;
+		// }
+		// if(typeof y === 'string'){
+		// 	y = `'${y}'`;
+		// }
+		console.log("RETURN FIND IN SET");
+		this.addPart(`FIND_IN_SET(${x},${y})`);
+		return this;
+	}
+
 	ifX(x, y, z){
 		if(x instanceof slashrDatabaseMySqlQueryExpression){
 			x = x.toString();
 		}
-		else if(x instanceof 'string'){
+		else if(typeof x === 'string'){
 			x = x;
 		}
 		if(! is_string(x)) throw ("contition value for mySql IF() must be either string or expression.");
 
 		return "IF("+x+","+y+","+z+")";
 	}
-
+	concat(...args){
+		this.addPart(`CONCAT(${args.join(",")})`);
+		return this;
+	}
 	min(x){throw("not implemented");}
 	max(x){throw("not implemented");}
 	count(x){throw("not implemented");}

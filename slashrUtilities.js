@@ -73,6 +73,10 @@ class slashrStringUtilities{
 	capitalize(w){
 		return w.replace(/^\w/, w => w.toUpperCase());
 	}
+
+	uncapitalize(w){
+		return w.replace(/^\w/, w => w.toLowerCase());
+	}
 	
 }
 
