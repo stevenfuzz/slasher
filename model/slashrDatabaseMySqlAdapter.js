@@ -71,7 +71,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 						nKeys.push(":"+nKey);
 						kIdx++;
 					}
-					query = query.replace(":"+key, "("+nKeys.join(",")+")");
+					query = query.replace(":"+key, nKeys.join(","));
 				}
 				else if(value instanceof Date){
 					bindings[key] = this.formatColumnInsertValue(value, "datetime");
