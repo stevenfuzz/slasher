@@ -77,6 +77,9 @@ class slashrStringUtilities{
 	uncapitalize(w){
 		return w.replace(/^\w/, w => w.toLowerCase());
 	}
+	replaceAll(str, find, replace) {
+		return str.replace(new RegExp(find, 'g'), replace);
+	};
 	
 }
 

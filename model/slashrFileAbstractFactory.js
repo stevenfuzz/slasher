@@ -25,7 +25,6 @@ module.exports = class slashrFileAbstractFactory{
 				}
 
 				if(! file) throw("File Error: Could not find file type '"+prop+"'");
-				console.log("RETURN FUNCTION TO INIT");
 				return (key, options) => {
 					return self.initFile(file, key, options);
 				}; 

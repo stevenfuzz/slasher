@@ -43,7 +43,6 @@ module.exports = class slashrEntity{
 				tblName = null;
 				let tTblKey = this._formatPropertyKey(this._metadata.name);
 				let schema = await this.mdl.db.getSchema();
-				console.log(schema);
 				for(let i in schema.tables){
 					if(this._formatPropertyKey(schema.tables[i].name) == tTblKey){
 						tblName = schema.tables[i].name;

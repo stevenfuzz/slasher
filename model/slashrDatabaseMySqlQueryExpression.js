@@ -25,7 +25,6 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 					let exp = self._metadata.query.exp();
 					return (...args) => { 
 						// return exp[fn](...args)
-						console.log(fn);
 						return self.orX(
 							exp[fn](...args)
 						);
@@ -129,9 +128,7 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 	_andOrX(condition, expression){
 		let expStr = "";
 		
-		console.log(expression, condition, expression.toString());
 		let slashrDatabaseMySqlQueryExpression = require("./slashrDatabaseMySqlQueryExpression");
-		console.log(expression instanceof slashrDatabaseMySqlQueryExpression);
 		
 		if(expression instanceof slashrDatabaseMySqlQueryExpression){
 			expStr = expression.toString();
@@ -218,7 +215,6 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		return this;
 	}
 	match(x, y, options){
-		if(options) console.log("options@@@@@@@@@@",options.mode);
 		let mode = (options.mode && options.mode.toLowerCase() === "boolean") ? " IN BOOLEAN MODE" : "";
 		this.addPart(`MATCH(${x}) AGAINST (${y}${mode})`);
 		return this;
@@ -290,7 +286,6 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 		// if(typeof y === 'string'){
 		// 	y = `'${y}'`;
 		// }
-		console.log("RETURN FIND IN SET");
 		this.addPart(`FIND_IN_SET(${x},${y})`);
 		return this;
 	}
