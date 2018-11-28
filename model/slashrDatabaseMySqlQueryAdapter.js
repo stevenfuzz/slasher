@@ -451,6 +451,8 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					}
 					else if(Array.isArray(bindings[tBind])){
 						op = "IN";
+						pre = "(";
+						post = ")";
 					}
 				}
 				//else value = mysql.escape(value);

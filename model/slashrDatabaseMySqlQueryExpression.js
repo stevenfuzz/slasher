@@ -312,7 +312,10 @@ module.exports = class slashrDatabaseMySqlQueryExpression extends slashrDatabase
 	}
 	min(x){throw("not implemented");}
 	max(x){throw("not implemented");}
-	count(x){throw("not implemented");}
+	count(x){
+		this.addPart(`COUNT(${x})`);
+		return this;
+	}
 	countDistinct(x){throw("not implemented");}
 
 	toString(options = {}){

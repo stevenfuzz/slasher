@@ -72,18 +72,14 @@ const slashr = class slashr{
 		// 	uploadDir: '/tmp',
   		// 	multiples: true, // req.files to be arrays of files
 		// }));
-		const routes = {
-			feed : {
-				default : {
-					route : "/feed/:type"
-				}
-			},
-			profile : {
-				default : {
-					route : "/profile/:profileId"
-				}
-			}
-		}
+		const routes = {};
+		// const routes = {
+		// 	profile : {
+		// 		default : {
+		// 			route : "/profile/:profileId"
+		// 		}
+		// 	}
+		// }
 		
 		let routeFn = async (req, res, route) => {
 			if(! route){
@@ -119,6 +115,7 @@ const slashr = class slashr{
 				}
 			}
 		}
+		
 		// Default Routes
 		this._metadata.listener.all('/:controller/:action', (req, res) => {
 			routeFn(req, res);
