@@ -23,6 +23,7 @@ module.exports = class slashrCacheRedisAdapter extends slashrCache{
 	}
 	async getValue(key, options = {}){
 		let self = this;
+		
 		let getAsync = (key, options) => {
 			return new Promise(function(resolve, reject){
 				console.log("Connecting to the server");

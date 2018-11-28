@@ -36,7 +36,7 @@ const slashr = class slashr{
 		// Set up static file server
 		// console.log(this.config.storage);
 		console.log("TODO: Get storage path from config.");
-		this._metadata.listener.use("/files",express.static("/var/www/html/MINT_PUBLIC/files",{fallthrough:false}));
+		this._metadata.listener.use("/files",express.static(global.slashr.config().storage.path,{fallthrough:false}));
 
 
 		this._metadata.listener.use(function(req, res, next) {
@@ -72,14 +72,19 @@ const slashr = class slashr{
 		// 	uploadDir: '/tmp',
   		// 	multiples: true, // req.files to be arrays of files
 		// }));
-		const routes = {};
 		// const routes = {
+		// 	feed : {
+		// 		default : {
+		// 			route : "/feed/:type"
+		// 		}
+		// 	},
 		// 	profile : {
 		// 		default : {
 		// 			route : "/profile/:profileId"
 		// 		}
 		// 	}
 		// }
+		let routes = {}
 		
 		let routeFn = async (req, res, route) => {
 			if(! route){
@@ -115,7 +120,7 @@ const slashr = class slashr{
 				}
 			}
 		}
-		
+
 		// Default Routes
 		this._metadata.listener.all('/:controller/:action', (req, res) => {
 			routeFn(req, res);

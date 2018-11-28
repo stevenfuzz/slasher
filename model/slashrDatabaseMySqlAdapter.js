@@ -26,7 +26,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 	tbl(name){
 		return this.table(name);
 	}
-	async executeQuery(query, options){
+	async executeQuery(query, options = {}){
 		let self = this;
 		let cacheKey = null;
 		let model = global.slashr.model();
@@ -38,21 +38,22 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		let bindings = {};
 		let cacheTime = (queryType === "select" && options.cacheTime) ? options.cacheTime : null;
 		// Format the bind values and query
-// console.log(query);
-// console.log(options.bindings);
-
 		if(options.bindings){
-			for(let key in options.bindings){
+
+			// Sort and reverse incase keys start with the same value
+			let keys = Object.keys(options.bindings).sort().reverse();
+			let utils = global.slashr.utils();
+			for(let key of keys){
 				let value = options.bindings[key];
 				if(typeof value === "string"){
 					// Format Like
 					if(query.indexOf("%:"+key) !== -1){
 						value = '%'+value;
-						query = query.replace("%:{key}", ":{key}");
+						query = utils.str.replaceAll(query, `%:${key}`, `:${key}`);
 					}
 					if(query.indexOf(":"+key+"%") !== -1){
 						value = value+'%';
-						query = query.replace(":"+key+"%", ":"+key);
+						query = utils.str.replaceAll(query, `:${key}%`, `:${key}`);
 					}
 					bindings[key] = value;
 				}
@@ -98,7 +99,8 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 				return new slashrDatabaseQueryResult(cRslt, options);
 			}
 		}
-		console.log("NO QUERY CACHE!!!!!!!",query, bindings);
+		console.log("NO QUERY CACHE!!!!!!!");
+		console.log(query);
 
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];
@@ -108,7 +110,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			bindArr.push(bindings[key]);
 			return "?";
 		});	
-		
+
 		let rslt = new Promise(function(resolve, reject){
 			self.connector.getConnection(
 				function(err, connection) {
@@ -247,9 +249,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		if(! schema.tables[name]){
 			let nName = this._formatTableName(name);
 			console.log("TODO: Must be a better way for this");
-			console.log("loop",schema.tables);
 			for(let table in schema.tables){
-				console.log("check",this._formatTableName(table),name);
 				if(this._formatTableName(table) === nName) return schema.tables[table]; 
 			}
 			throw(`Could not get table info for ${name}. Table not found in schema.`);
@@ -365,9 +365,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 					}
 					else{
 						tDate = new Date(value);
-						console.log("date check",value,tDate, tDate.getTime());
 					}
-					console.log("Trying to conver:",tDate);
 					if(tDate) ret = tDate.toISOString().substring(0, 19).replace('T', ' ');
 				}
 				break;

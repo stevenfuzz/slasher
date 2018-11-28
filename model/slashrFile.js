@@ -58,9 +58,6 @@ module.exports = class slashrFile{
 	 * Populate the metadata by array
 	 */
 	populate(file){
-
-		console.log(file);
-
 		this._metadata.file = {};
 
 		if(! file.name) throw("File Error: No File Name");

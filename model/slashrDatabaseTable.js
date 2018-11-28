@@ -1,7 +1,6 @@
 module.exports = class slashrDatabaseTable{
 	constructor(database, name, options){
 		// name = this._parseTableName(name);
-		console.log("Create database table with name",name);
 		this._metadata = {
 			database: database,
 			name: name,

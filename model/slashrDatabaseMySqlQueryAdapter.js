@@ -185,7 +185,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 						if(! joinTable) throw("Join table not found for SQL Join");
 						
 						// Add the on predicate
-						 console.log("JOIN???? val", this._expressionToString(value.expression));
 						// throw("LSKDJF");
 						qry += this._expressionToString(joinTable)+" ON "+this._expressionToString(value.expression);
 					}
@@ -264,7 +263,6 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return this;
 	}
 	page(page, resultsPerPage = 20){
-		console.log(page, resultsPerPage);
 		if(page == 1) this.limit(resultsPerPage);
 		else{
 			this.limit((page - 1) * resultsPerPage, resultsPerPage);
@@ -440,6 +438,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 						post = "%";
 						value = value.slice(0, value.length - 1).trim();
 					}
+					throw("SLDKJFLKSJDFHF");
 				}
  				if(value.startsWith(":")){
 					let tBind = value.slice(1, value.length).trim();
@@ -451,8 +450,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 					}
 					else if(Array.isArray(bindings[tBind])){
 						op = "IN";
-						pre = "(";
-						post = ")";
+						value = `(${value})`;
 					}
 				}
 				//else value = mysql.escape(value);
