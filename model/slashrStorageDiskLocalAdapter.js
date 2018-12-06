@@ -61,13 +61,15 @@ module.exports = class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
 	}
 	async delete(file, options = {}){
 		let utils = global.slashr.utils();
-		let path = file.getRelativePath();
-		isSuccess = utils.file.unlink(path);
+		let basePath = this._metadata.path;
+		let relPath = file.getRelativePath();
+		isSuccess = utils.file.unlink(basePath+relPath);
 		return isSuccess;
 	}
 	async copy(file, localFilePath, options = {}){
 		let utils = global.slashr.utils();
-		let path = file.getRelativePath();
-		return await utils.file.copy(path, localFilePath);
+		let basePath = this._metadata.path;
+		let relPath = file.getRelativePath();
+		return await utils.file.copy(basePath+relPath, localFilePath);
 	}
 }

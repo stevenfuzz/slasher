@@ -1,4 +1,5 @@
 global._slashrAppInstace = null;
+
 const slashr = class slashr{
 	constructor(config){
 		this._metadata = {
@@ -24,7 +25,13 @@ const slashr = class slashr{
 		const formidable = require('formidable');
 		
 		console.log("MOVE ALL OF THIS TO CONTROLLER");
-
+		
+		const prerender = require('prerender');
+		const server = prerender({
+			port: "3003",
+			followRedirects: false
+		});
+		server.start();
 		
 		let controllerRequest = async (route, req, res) => {
 			return await this.controller.run(route, req, res);
@@ -87,6 +94,7 @@ const slashr = class slashr{
 		let routes = {}
 		
 		let routeFn = async (req, res, route) => {
+			console.log("REQUEST: ",req.url);
 			if(! route){
 				route = {
 					'controller' : (req.params.controller || "default"),

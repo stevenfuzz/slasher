@@ -101,6 +101,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		}
 		console.log("NO QUERY CACHE!!!!!!!");
 		console.log(query);
+		console.log(bindings);
 
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];

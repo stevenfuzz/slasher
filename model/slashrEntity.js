@@ -391,14 +391,14 @@ module.exports = class slashrEntity{
 		let keyVal = this._getKeyValue();
 		let vKeyVal = null;
 		for(let name in values){
-			if(keyName == this._formatPropertyKey(name)){
-				vKeyVal = values[values[name]];
+			if(keyName === this._formatPropertyKey(name)){
+				vKeyVal = values[name];
 			}
 		}
 		
 		// Check if it is a hydrated object, and make sure the keys match
 		if(! this.isNew()){
-			if(vKeyVal != keyVal) throw("Error populating values into entity '"+this._metadata.name+"'. Key mismatch between populated entity and values.");
+			if(vKeyVal !== keyVal) throw("Error populating values into entity '"+this._metadata.name+"'. Key mismatch between populated entity and values.");
 		}
 		else if(vKeyVal){
 			// Try to initialize the entity
@@ -560,8 +560,6 @@ module.exports = class slashrEntity{
 //				}
 //			}
 //		}
-
-		console.log("DO UPDATE????",this.isUpdated());
 
 		if(this.isUpdated()){
 			// Save Entity

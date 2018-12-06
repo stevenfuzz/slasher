@@ -8,6 +8,7 @@ module.exports = class slashrFile{
 		this._metadata.parent = null;
 		this._metadata.isNew = true;
 		this._metadata.isTmpInitialized = false;
+		this.setup();
 	}
 
 	async _load(){
@@ -58,16 +59,16 @@ module.exports = class slashrFile{
 	 * Populate the metadata by array
 	 */
 	populate(file){
-		this._metadata.file = {};
+		this._metadata.file = file;
 
 		if(! file.name) throw("File Error: No File Name");
 		if(! file.size) throw("File Error: No File Size");
 		if(! file.type) throw("File Error: No File Type");
 		// if(! file.path) throw("File Error: No File Path");
 
-		this._metadata.file.name = file.name;
-		this._metadata.file.type = file.type;
-		this._metadata.file.size = file.size;
+		// this._metadata.file.name = file.name;
+		// this._metadata.file.type = file.type;
+		// this._metadata.file.size = file.size;
 		this._metadata.file.path = file.path || null;
 
 		// TODO Validate populated data
@@ -227,19 +228,18 @@ module.exports = class slashrFile{
 	
 	
 	async save(options = {}){
-
 		console.log("ABOUT TO POPULATE WITH VALUES",this._metadata.file);
-
 		await this._metadata.entity.populate(this._metadata.file);
 		await this._metadata.entity.save();
 
 		let isSuccess = await this._metadata.storage.save(this);
 		
 		if(isSuccess){
-			let slashrTempFile = require("./slashrTempFile");
-			if(this._metadata.source instanceof slashrTempFile){
-				await this._metadata.source.delete();
-			}
+			console.log("TODO: Clean up tmp dir?");
+			// let slashrTempFile = require("./slashrTempFile");
+			// if(this._metadata.tmpFile instanceof slashrTempFile){
+			// 	await this._metadata.tmpFile.delete();
+			// }
 		}
 		else throw("TODO: Deal with broken file issue saving slashrFile.");
 

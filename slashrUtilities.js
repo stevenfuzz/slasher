@@ -109,6 +109,16 @@ class slashrFileUtilities{
 		});
 	}
 
+	async size(path){
+		let fs = require("fs");
+		return await new Promise((resolve, reject) => {
+			fs.stat(path, function(err, stats) {
+				if(err) reject(err);
+				else resolve(stats.size);
+			});
+		});
+	}
+
 	async copy(src, dest){
 		let fs = require("fs");
 		return await new Promise((resolve, reject) => {
@@ -294,7 +304,7 @@ class slashrFileUtilities{
 		let exts = this.getMimeTypesByExtension();
 		let ret = {};
 		for(let i in exts){
-			ret[e[i]] = e;
+			ret[exts[i]] = i;
 		}
 		return ret;
 	}

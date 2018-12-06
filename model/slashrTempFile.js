@@ -26,9 +26,9 @@ module.exports = class slashrTempFile extends slashrFile{
 				if(! tempPath) throw("Unable to init slashrFile for slashrTempFile. File must have source info.");
 			}
 			else if(! tempPath){
-				tempPath =  this.getDefaultTempPath();
+				tempPath =  this._getDefaultTempPath();
 				// Move file over to a local version
-				if(! this._metadata.storage.copy(key, tempPath)) throw("Unable to init slashrFile for slashrTempFile. Could not copy source info.");
+				if(! await this._metadata.storage.copy(key, tempPath)) throw("Unable to init slashrFile for slashrTempFile. Could not copy source info.");
 				this.setTempPath(tempPath);
 			}
 			if(! tempPath) throw("Unable to init slashrFile for slashrTempFile. Could not create temp file.");
@@ -68,6 +68,7 @@ module.exports = class slashrTempFile extends slashrFile{
 	}
 	getId(){
 		if(! this._metadata.file.uid){
+			let uniqid = require("uniqid");
 			this._metadata.file.uid = uniqid(this.getIdPrefix())+"_"+Date.now();
 		}
 		return this._metadata.file.uid;
@@ -103,17 +104,17 @@ module.exports = class slashrTempFile extends slashrFile{
 	// Creates the temp path to be used for saving / storing the file
 	_getDefaultTempPath(){
 		// Save the file in the tmp path
-		nFileName = this.getTempFileName();
+		let nFileName = this.getTempFileName();
 		if(! nFileName) return false;
-		nTmpPath = this._metadata.storage.getTempDirectory()["nFileName"];
-		return nTmpPath;
+		let nTmpPath = this._metadata.storage.getTempDirectory();
+		return nTmpPath+nFileName;
 	}
 	_getDefaultMetadataTempPath(){
 		// Save the file in the tmp path
 		let nFileName = this.getTempMetadataFileName();
 		if(! nFileName) return false;
-		let nTmpPath = this._metadata.storage.getTempDirectory()["nFileName"];
-		return nTmpPath;
+		let nTmpPath = this._metadata.storage.getTempDirectory()		
+		return nTmpPath+nFileName;
 	}
 	
 	_createTempFile(){
@@ -121,14 +122,13 @@ module.exports = class slashrTempFile extends slashrFile{
 		let tmpPath = this.getTempPath();
 		// check for error
 		// Check if this is an uploaded file
-		if(! tmpPath){
-			
+		if(! tmpPath){			
 			let nFileName = this.getTempFileName();
 			if(! nFileName) throw("Unable create temp file. No temp name found.");
 			let nTmpPath = this.getDefaultTempPath();
 			
 			// See if this file is already a temp folder
-			if(nTmpPath == tmpPath){
+			if(nTmpPath === tmpPath){
 				if(! file_exists(nTmpPath)) throw("Unable load file. Unable to find temp file content.");
 			}
 			else if(is_uploaded_file(nTmpPath) && move_uploaded_file(tmpPath, nTmpPath) === false)  throw("Unable load uploaded file. Unable to move files to tmp directory at path '{nTmpPath}'. Please check permissions.");
@@ -138,7 +138,6 @@ module.exports = class slashrTempFile extends slashrFile{
 			if(! name){
 				this.setName(nFileName);
 			}
-			
 			this.setTempPath(nTmpPath);
 			return true;
 		}
@@ -154,17 +153,20 @@ module.exports = class slashrTempFile extends slashrFile{
 		if(file_put_contents(nTmpPath, JSON.stringify(this._metadata.file.toArray()))  === false) throw("Unable to init uploaded file. Unable to create file metadata in tmp directory at path '{nTmpPath}'. Please check permissions.");
 		this._metadata.isSaved = true;
 	}
-	delete(options = {}){
-		if(this.isNew()) return true;
-		let nTmpPath = this.getDefaultTempPath();
-		if(file_exists(nTmpPath)){
-			if(! unlink(nTmpPath) || file_exists(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
+	async delete(options = {}){
+		// if(this.isNew()) return true;
+		let utils = global.slashr.utils();
+		let nTmpPath = this._getDefaultTempPath();
+
+		console.log("delete tmp path",nTmpPath);
+		if(await utils.file.dirExists(nTmpPath)){
+			if(await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
 		}
-		nTmpPath =  this.getDefaultMetadataTempPath();
-		if(file_exists(nTmpPath)){
-			if(! unlink(nTmpPath) || file_exists(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
+		nTmpPath =  this._getDefaultMetadataTempPath();
+		if(await utils.file.dirExists(nTmpPath)){
+			if(await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
 		}
-		this._metadata.file = new slashrComponentMetadata();
+		this._metadata.file = {}
 		this._metadata.isInitialized = false;
 		return true;
 	}
