@@ -78,7 +78,7 @@ class slashrStringUtilities{
 		return w.replace(/^\w/, w => w.toLowerCase());
 	}
 	replaceAll(str, find, replace) {
-		return str.replace(new RegExp(find, 'g'), replace);
+		return str.split(find).join(replace);
 	};
 	
 }
@@ -129,12 +129,39 @@ class slashrFileUtilities{
 		});
 	}
 
+	async write(path, content){
+		let fs = require("fs");
+		return await new Promise((resolve, reject) => {
+			fs.copyFile(src, dest, function(err) {
+				if(err) reject(err);
+				else resolve(true);
+			});
+			fs.writeFile(path, content, function (err) {
+				if (err) reject(err);
+				else resolve(true);
+			});
+		});
+	}
+
+	
+
 	async unlink(path){
 		let fs = require("fs");
 		return await new Promise((resolve, reject) => {
 			fs.unlink(path, function(err) {
 				if(err) reject(err);
 				else resolve(true);
+			});
+		});
+	}
+
+	async toString(path, options = {}){
+
+		let fs = require("fs");
+		return await new Promise((resolve, reject) => {
+			fs.readFile(path, options, function(err, data) {
+				if(err) reject(err);
+				else resolve(data.toString());
 			});
 		});
 	}

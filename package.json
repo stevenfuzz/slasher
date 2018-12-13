@@ -1,6 +1,6 @@
 {
   "name": "slashr",
-  "version": "0.1.27",
+  "version": "0.1.30",
   "description": "An insync model/controller node api framework. ",
   "main": "slashr.js",
   "scripts": {

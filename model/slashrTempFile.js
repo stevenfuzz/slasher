@@ -22,8 +22,21 @@ module.exports = class slashrTempFile extends slashrFile{
 			
 			// Create the temp file
 			let tempPath = this.getTempPath();
+			console.log(tempPath);
 			if(key.isNew()){
-				if(! tempPath) throw("Unable to init slashrFile for slashrTempFile. File must have source info.");
+				if(! tempPath){
+					throw("LKJSDFLKJSDLKFJLKJSDFh");
+					// Check if it has content
+					let content = key.getContent();
+					if(content){
+						tempPath =  this._getDefaultTempPath();
+						throw("SLDKFJLKSDJF LKSDJ FLKSDJ FLKDSJ FLKS DJF LKJS DLKFJ F");
+						if(! await this._metadata.storage.write(tempPath,content)) throw("Unable to init slashrFile for slashrTempFile. Could not copy content info.");
+						this.setTempPath(tempPath);
+						throw("SLKDJF");
+					}
+					else throw("Unable to init slashrFile for slashrTempFile. File must have source info.");
+				}
 			}
 			else if(! tempPath){
 				tempPath =  this._getDefaultTempPath();
@@ -61,6 +74,9 @@ module.exports = class slashrTempFile extends slashrFile{
 	}
 	getTempPath(){
 		return this._metadata.file.path;
+	}
+	getContent(){
+		return this._metadata.file.content;
 	}
 	setTempPath(path){
 		this._metadata.file.path = path;

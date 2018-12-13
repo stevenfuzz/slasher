@@ -24,8 +24,13 @@ module.exports = class slashrFile{
 	// Init by slashrFormUploadedFile, handle, or id
 	// key mixed slashrTempFile|id|fileKey|path
 	async init(key, options = {}){
+		console.log("KEY KEY KEY",key);
 		const slashrTempFile = require("./slashrTempFile");
-		if(key instanceof slashrTempFile){
+		let utils = global.slashr.utils();;
+		if(! key){
+			throw("File init error: No Key");
+		}
+		else if(key instanceof slashrTempFile){
 			// Set the source as the uploaded file
 			this._metadata.tmpFile = key;
 			this.populate(this._metadata.tmpFile.extract());
@@ -37,6 +42,7 @@ module.exports = class slashrFile{
 		}
 		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === -1)){
 			// Key or id
+			console.log("IS KEY IS KEY",key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === -1);
 			let eId = null;
 			if(!isNaN(key)) eId = key;
 			else{
@@ -48,7 +54,36 @@ module.exports = class slashrFile{
 			if(this._metadata.entity.isNew()) throw("Unable to init file entity by key value '{key}' and id '{eId}'.");
 			this.populate(this._metadata.entity.extract());
 		}
-		else throw("TODO: Init file by filepath");
+		else{
+			if(utils.url.isValid(key)){
+				const axios = require("axios");
+				let blob = await axios({
+					method:'get',
+					url:key,
+					responseType:'data'
+				});
+
+				// console.log(blob.headers);
+				// throw("SLDKJFLSDKJFLKJFH");
+				if(! blob.headers["content-type"]) throw("File init error: No content type found.");
+				if(! blob.headers["content-length"]) throw("File init error: Unknown file size.");
+
+				let uniqid = require("uniqid");
+				let ext = utils.file.getExtensionByMimeType(blob.headers["content-type"]); 
+
+				if(! ext) throw("File init error: Unknown file type.");
+
+				let file = {
+					name: `${uniqid("slashr_ef_"+Date.now())}.${ext}`,
+					size: blob.headers["content-length"],
+					type: blob.headers["content-type"],
+					content: blob.data
+				}
+				this.populate(file);
+				await this._initTmpFile();
+			}
+			else throw("INIT IMAGE BY FILEPATH!!!!!!!!!");
+		}
 		
 		// Validate
 		this.validate();
@@ -70,6 +105,7 @@ module.exports = class slashrFile{
 		// this._metadata.file.type = file.type;
 		// this._metadata.file.size = file.size;
 		this._metadata.file.path = file.path || null;
+		if(file.content) this._metadata.file.content = file.content;
 
 		// TODO Validate populated data
 		let utils = global.slashr.utils();

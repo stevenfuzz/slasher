@@ -18,6 +18,9 @@ const slashr = class slashr{
 
 		global._slashrAppInstance = this;
 	}
+	static get utils(){
+		return global.slashr.utils();
+	}
 	async run(){
 		const express = require('express');
 		const bodyParser = require('body-parser');

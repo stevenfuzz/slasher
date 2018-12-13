@@ -267,7 +267,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		else if(type === "tinyint(1)"){
 			ret = "boolean";
 		}
-		else if(type.startsWith("int") || type.startsWith("tinyint")){
+		else if(type.startsWith("int") || type.startsWith("tinyint") || type.startsWith("bigint")){
 			ret = "integer";
 		}
 		else if(type.startsWith("date")){
