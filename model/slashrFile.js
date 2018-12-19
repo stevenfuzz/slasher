@@ -24,8 +24,8 @@ module.exports = class slashrFile{
 	// Init by slashrFormUploadedFile, handle, or id
 	// key mixed slashrTempFile|id|fileKey|path
 	async init(key, options = {}){
-		console.log("KEY KEY KEY",key);
 		const slashrTempFile = require("./slashrTempFile");
+
 		let utils = global.slashr.utils();;
 		if(! key){
 			throw("File init error: No Key");
@@ -42,7 +42,6 @@ module.exports = class slashrFile{
 		}
 		else if(!isNaN(key) || (key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === -1)){
 			// Key or id
-			console.log("IS KEY IS KEY",key.indexOf && key.indexOf("/") === -1 && key.indexOf(".") === -1);
 			let eId = null;
 			if(!isNaN(key)) eId = key;
 			else{
@@ -57,27 +56,23 @@ module.exports = class slashrFile{
 		else{
 			if(utils.url.isValid(key)){
 				const axios = require("axios");
-				let blob = await axios({
+				const fs = require('fs');
+				let res = await axios({
 					method:'get',
 					url:key,
-					responseType:'data'
+					responseType:'stream'
 				});
-
-				// console.log(blob.headers);
-				// throw("SLDKJFLSDKJFLKJFH");
-				if(! blob.headers["content-type"]) throw("File init error: No content type found.");
-				if(! blob.headers["content-length"]) throw("File init error: Unknown file size.");
+				if(! res.headers["content-type"]) throw("File init error: No content type found.");
+				if(! res.headers["content-length"]) throw("File init error: Unknown file size.");
 
 				let uniqid = require("uniqid");
-				let ext = utils.file.getExtensionByMimeType(blob.headers["content-type"]); 
-
+				let ext = utils.file.getExtensionByMimeType(res.headers["content-type"]); 
 				if(! ext) throw("File init error: Unknown file type.");
-
 				let file = {
-					name: `${uniqid("slashr_ef_"+Date.now())}.${ext}`,
-					size: blob.headers["content-length"],
-					type: blob.headers["content-type"],
-					content: blob.data
+					name: `${uniqid("fl_"+Date.now())}.${ext}`,
+					size: res.headers["content-length"],
+					type: res.headers["content-type"],
+					stream: res.data
 				}
 				this.populate(file);
 				await this._initTmpFile();
@@ -105,7 +100,7 @@ module.exports = class slashrFile{
 		// this._metadata.file.type = file.type;
 		// this._metadata.file.size = file.size;
 		this._metadata.file.path = file.path || null;
-		if(file.content) this._metadata.file.content = file.content;
+		if(file.stream) this._metadata.file.stream = file.stream;
 
 		// TODO Validate populated data
 		let utils = global.slashr.utils();
@@ -190,6 +185,20 @@ module.exports = class slashrFile{
 		this.setType(size);
 		return this;
 	}
+	getStream(){
+		return this._metadata.file.stream;
+	}
+	setStream(stream){
+		this._metadata.file.stream = stream;
+		return this;
+	}
+	get stream(){
+		return this.getStream();
+	}
+	set stream(stream){
+		this.setStream(stream);
+		return this;
+	}
 	getMetadata(){
 		return this._metadata.file.metadata;
 	}
@@ -264,14 +273,12 @@ module.exports = class slashrFile{
 	
 	
 	async save(options = {}){
-		console.log("ABOUT TO POPULATE WITH VALUES",this._metadata.file);
 		await this._metadata.entity.populate(this._metadata.file);
 		await this._metadata.entity.save();
 
 		let isSuccess = await this._metadata.storage.save(this);
 		
 		if(isSuccess){
-			console.log("TODO: Clean up tmp dir?");
 			// let slashrTempFile = require("./slashrTempFile");
 			// if(this._metadata.tmpFile instanceof slashrTempFile){
 			// 	await this._metadata.tmpFile.delete();

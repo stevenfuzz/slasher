@@ -5,7 +5,6 @@ module.exports = class slashrTempFile extends slashrFile{
 		const _metadata = {};
 		super(storage, options);
 		this._metadata.isSaved = false;
-		console.log("DEAL WITH DESCTRUCTOR");
 	}
 	__destruct(){
 		let tmpPath = this.getTempPath();
@@ -22,18 +21,15 @@ module.exports = class slashrTempFile extends slashrFile{
 			
 			// Create the temp file
 			let tempPath = this.getTempPath();
-			console.log(tempPath);
 			if(key.isNew()){
 				if(! tempPath){
-					throw("LKJSDFLKJSDLKFJLKJSDFh");
 					// Check if it has content
-					let content = key.getContent();
-					if(content){
+					let stream = key.getStream();
+					if(stream){
 						tempPath =  this._getDefaultTempPath();
-						throw("SLDKFJLKSDJF LKSDJ FLKSDJ FLKDSJ FLKS DJF LKJS DLKFJ F");
-						if(! await this._metadata.storage.write(tempPath,content)) throw("Unable to init slashrFile for slashrTempFile. Could not copy content info.");
+						let isSuccess = await this._metadata.storage.writeStream(stream,tempPath);
+						if(! isSuccess) throw("Unable to init slashrFile for slashrTempFile. Could not copy content info.");
 						this.setTempPath(tempPath);
-						throw("SLKDJF");
 					}
 					else throw("Unable to init slashrFile for slashrTempFile. File must have source info.");
 				}
@@ -138,25 +134,27 @@ module.exports = class slashrTempFile extends slashrFile{
 		let tmpPath = this.getTempPath();
 		// check for error
 		// Check if this is an uploaded file
-		if(! tmpPath){			
-			let nFileName = this.getTempFileName();
-			if(! nFileName) throw("Unable create temp file. No temp name found.");
-			let nTmpPath = this.getDefaultTempPath();
+		if(! tmpPath){	
+			throw("TODO SHOULD NOT BE HERE....");		
+			// let nFileName = this.getTempFileName();
+			// if(! nFileName) throw("Unable create temp file. No temp name found.");
+			// let nTmpPath = this.getDefaultTempPath();
 			
-			// See if this file is already a temp folder
-			if(nTmpPath === tmpPath){
-				if(! file_exists(nTmpPath)) throw("Unable load file. Unable to find temp file content.");
-			}
-			else if(is_uploaded_file(nTmpPath) && move_uploaded_file(tmpPath, nTmpPath) === false)  throw("Unable load uploaded file. Unable to move files to tmp directory at path '{nTmpPath}'. Please check permissions.");
-			else if(copy(tmpPath, nTmpPath) === false) throw("Unable load file. Unable to move files to tmp directory at path '{nTmpPath}'. Please check permissions.");
+			// // See if this file is already a temp folder
+			// if(nTmpPath === tmpPath){
+			// 	if(! file_exists(nTmpPath)) throw("Unable load file. Unable to find temp file content.");
+			// }
+			// else if(is_uploaded_file(nTmpPath) && move_uploaded_file(tmpPath, nTmpPath) === false)  throw("Unable load uploaded file. Unable to move files to tmp directory at path '{nTmpPath}'. Please check permissions.");
+			// else if(copy(tmpPath, nTmpPath) === false) throw("Unable load file. Unable to move files to tmp directory at path '{nTmpPath}'. Please check permissions.");
 
-			let name = this.getName();
-			if(! name){
-				this.setName(nFileName);
-			}
-			this.setTempPath(nTmpPath);
-			return true;
+			// let name = this.getName();
+			// if(! name){
+			// 	this.setName(nFileName);
+			// }
+			// this.setTempPath(nTmpPath);
+			// return true;
 		}
+		else return true;
 		return false;
 	}
 	// Saves the tmp file instead of removing it

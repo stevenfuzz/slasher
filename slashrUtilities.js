@@ -87,7 +87,7 @@ class slashrFileUtilities{
 
 	async isDir(dir){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.stat(dir, function(err, stats) {
 			if (err) {
 				if(err.code === 'ENOENT') resolve(false);
@@ -101,7 +101,7 @@ class slashrFileUtilities{
 
 	async mkdir(dir){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.mkdir(dir, function(err) {
 				if(err) reject(err);
 				else resolve(true);
@@ -111,7 +111,7 @@ class slashrFileUtilities{
 
 	async size(path){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.stat(path, function(err, stats) {
 				if(err) reject(err);
 				else resolve(stats.size);
@@ -121,7 +121,7 @@ class slashrFileUtilities{
 
 	async copy(src, dest){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.copyFile(src, dest, function(err) {
 				if(err) reject(err);
 				else resolve(true);
@@ -131,23 +131,33 @@ class slashrFileUtilities{
 
 	async write(path, content){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
-			fs.copyFile(src, dest, function(err) {
-				if(err) reject(err);
-				else resolve(true);
-			});
-			fs.writeFile(path, content, function (err) {
+		return new Promise((resolve, reject) => {
+			console.log("write file",path, content);
+			fs.writeFile(path, content, 'binary',function (err) {
 				if (err) reject(err);
 				else resolve(true);
 			});
 		});
 	}
 
+	async writeStream(path, stream){
+		let fs = require("fs");
+		return new Promise((resolve, reject) => {
+			stream.pipe(fs.createWriteStream(path));
+			stream.on("error", (err) => {
+				reject(err);
+			});
+			stream.on("end", function() {
+				resolve(true);
+			});
+		});  
+	}
+
 	
 
 	async unlink(path){
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.unlink(path, function(err) {
 				if(err) reject(err);
 				else resolve(true);
@@ -158,7 +168,7 @@ class slashrFileUtilities{
 	async toString(path, options = {}){
 
 		let fs = require("fs");
-		return await new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			fs.readFile(path, options, function(err, data) {
 				if(err) reject(err);
 				else resolve(data.toString());

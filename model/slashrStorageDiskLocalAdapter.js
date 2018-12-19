@@ -72,4 +72,12 @@ module.exports = class slashrStorageDiskLocalAdapter extends slashrStorageDisk{
 		let relPath = file.getRelativePath();
 		return await utils.file.copy(basePath+relPath, localFilePath);
 	}
+	async write(content, localFilePath, options = {}){
+		let utils = global.slashr.utils();
+		return await utils.file.write(localFilePath,content);
+	}
+	async writeStream(stream, localFilePath, options = {}){
+		let utils = global.slashr.utils();
+		return await utils.file.writeStream(localFilePath,stream);
+	}
 }

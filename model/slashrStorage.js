@@ -107,6 +107,26 @@ module.exports = class slashrStorage{
 		}
 		return false;
 	}
+	// Copies file into the given path
+	async write(content, localFilePath, options = {}){
+		// TODO: For now it is going to use the first disk
+		for(let disk of this._metadata.disks){
+			if(await disk.write(content, localFilePath, options)){
+				return true;
+			}
+		}
+		return false;
+	}
+	// Copies file into the given path
+	async writeStream(stream, localFilePath, options = {}){
+		// TODO: For now it is going to use the first disk
+		for(let disk of this._metadata.disks){
+			if(await disk.writeStream(stream, localFilePath, options)){
+				return true;
+			}
+		}
+		return false;
+	}
 	getFileUrlByKey(key){
 		if(! key) return null;
 		return this._metadata.url+this.getFileRelativePath(key);

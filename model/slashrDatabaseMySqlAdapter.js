@@ -38,6 +38,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		let bindings = {};
 		let cacheTime = (queryType === "select" && options.cacheTime) ? options.cacheTime : null;
 		// Format the bind values and query
+		console.log(options.bindings);
 		if(options.bindings){
 
 			// Sort and reverse incase keys start with the same value
@@ -316,8 +317,10 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 				else ret = null;
 				break;
 			case "integer":
+				
 				if(!isNaN(value)) ret = parseInt(value);
 				else ret = null;
+				
 				break;
 			case "string":
 				if(value) ret = String(value);
@@ -344,11 +347,11 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		let ret = null;
 		switch(type){
 			case "decimal":
-				if(!isNaN(value)) ret = parseFloat(value);
+				if(value !== null && !isNaN(value)) ret = parseFloat(value);
 				else ret = null;
 				break;
 			case "integer":
-				if(!isNaN(value)) ret = parseInt(value);
+				if(value !== null && !isNaN(value)) ret = parseInt(value);
 				else ret = null;
 				break;
 			case "string":
@@ -377,6 +380,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 				ret = value;
 				throw new Exception("Error formating column insert value, type '{type}' not found.");
 		}
+		console.log(type, value, ret);
 		return ret;
 	}
 	async tableExists(name){

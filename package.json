@@ -1,6 +1,6 @@
 {
   "name": "slashr",
-  "version": "0.1.30",
+  "version": "0.1.32",
   "description": "An insync model/controller node api framework. ",
   "main": "slashr.js",
   "scripts": {
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/stevenfuzz/slashr#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "base64url": "^3.0.0",
     "express": "^4.16.3",
     "express-formidable": "^1.0.0",
