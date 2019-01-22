@@ -45,7 +45,7 @@ const slashr = class slashr{
 		
 		// Set up static file server
 		// console.log(this.config.storage);
-		console.log("TODO: Get storage path from config.");
+		//console.log("TODO: Get storage path from config.");
 		this._metadata.listener.use("/files",express.static(global.slashr.config().storage.path,{fallthrough:false}));
 
 
@@ -60,7 +60,7 @@ const slashr = class slashr{
 
 		this._metadata.listener.use(bodyParser.json());
 		this._metadata.listener.use(bodyParser.urlencoded({ extended: true }));
-		console.log("TODO: Set tmp to config tmp");
+		//console.log("TODO: Set tmp to config tmp");
 		this._metadata.listener.use(function(req, res, next) {
 			var type = req.headers['content-type'];
 			if(type && type.startsWith("multipart/form-data")){

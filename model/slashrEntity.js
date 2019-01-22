@@ -18,7 +18,7 @@ module.exports = class slashrEntity{
 		this._metadata.relatatedKeys = {};
 		this._metadata.relationships = {};
 		
-		//console.log("TODO: Add entity in config");
+		////console.log("TODO: Add entity in config");
 		let entities = {};
 		let tblName = null;
 		

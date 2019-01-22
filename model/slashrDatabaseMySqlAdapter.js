@@ -250,7 +250,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		if(! name) throw("Could not get table info. No table name provided.");
 		if(! schema.tables[name]){
 			let nName = this._formatTableName(name);
-			console.log("TODO: Must be a better way for this");
+			//console.log("TODO: Must be a better way for this");
 			for(let table in schema.tables){
 				if(this._formatTableName(table) === nName) return schema.tables[table]; 
 			}

@@ -57,7 +57,7 @@ module.exports = class slashrDatabaseTable{
 		}
 		options.bindings = bindings;
 		
-		console.log("TODO: figure out where query is not working without calling as fn");
+		//console.log("TODO: figure out where query is not working without calling as fn");
 		return await this._metadata.database.query()
 				.select("*")
 				.from(this._metadata.name)

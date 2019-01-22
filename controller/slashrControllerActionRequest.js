@@ -28,8 +28,8 @@ module.exports = class slashrControllerActionRequest{
 		this.data.route = req.params;
 		this.data.query = req.query;
 
-		console.log("TODO: Merge fields and files for forms in request");
-		console.log("TODO: Make sure controllers and requests are per instance based.");
+		//console.log("TODO: Merge fields and files for forms in request");
+		//console.log("TODO: Make sure controllers and requests are per instance based.");
 
 		if(req.fields){
 			if(req.fields._slashrFormMetadata){
@@ -64,7 +64,7 @@ module.exports = class slashrControllerActionRequest{
 			}
 		}
 	
-		console.log("TODO: Put cookie and post data in the result");
+		//console.log("TODO: Put cookie and post data in the result");
 
 	}
 	getRouteInfo(){

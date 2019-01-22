@@ -10,7 +10,7 @@ module.exports = class slashrControllerActionResultModelAbstractFactory{
 					case "data":
 					case "dt":
 						// RETURN A PROXY AND USE APPLY TO GET THE ARGS
-						console.log("TODO: Why is this being done this way");
+						//console.log("TODO: Why is this being done this way");
 						let slashrDataResultModel = require("./slashrDataResultModel");
 						return (data = {}) => {
 							let rslt = new slashrDataResultModel(controllerAction);
@@ -22,6 +22,22 @@ module.exports = class slashrControllerActionResultModelAbstractFactory{
 						return (data = {}) => {
 							let rslt = new slashrApiResultModel(controllerAction);
 							rslt.data = data;
+							return rslt;
+						};
+						break;
+					case "html":
+						let slashrHtmlResultModel = require("./slashrHtmlResultModel");
+						return (content = '') => {
+							let rslt = new slashrHtmlResultModel(controllerAction);
+							rslt.content = content;
+							return rslt;
+						};
+						break;
+					case "xml":
+						let slashrXmlResultModel = require("./slashrXmlResultModel");
+						return (content = '') => {
+							let rslt = new slashrXmlResultModel(controllerAction);
+							rslt.content = content;
 							return rslt;
 						};
 						break;

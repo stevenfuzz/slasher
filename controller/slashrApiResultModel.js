@@ -3,7 +3,7 @@ module.exports = class slashrApiResultModel extends slashrControllerActionResult
 	constructor(controllerAction){
 		super(controllerAction);
 		this._metadata.accessToken = null;
-		console.log("TODO: Compare api id to request id, and always return request id");
+		//console.log("TODO: Compare api id to request id, and always return request id");
 	}
 	get accessToken(){
 		return this._metadata.accessToken;

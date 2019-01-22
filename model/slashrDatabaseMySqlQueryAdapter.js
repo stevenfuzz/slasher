@@ -399,7 +399,7 @@ module.exports = class slashrDatabaseMySqlQueryAdapter extends slashrDatabaseQue
 		return ret;
 	}
 	_expressionToString(expression){
-		console.log("TODO: Should expressions be escaped? Inforce bind?");
+		//console.log("TODO: Should expressions be escaped? Inforce bind?");
 		let mysql = require('mysql');
 
 		if(expression instanceof slashrDatabaseMySqlQueryExpression){

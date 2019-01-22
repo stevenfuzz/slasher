@@ -1,6 +1,6 @@
 module.exports = class slashrModel{
 	constructor(){
-		console.log("TODO: Put this in a proxy so it load ala carte?");
+		//console.log("TODO: Put this in a proxy so it load ala carte?");
 		let slashrDomainInstanceFactory = require("./slashrDomainInstanceFactory");
 		let slashrDatabaseInstanceFactory = require("./slashrDatabaseInstanceFactory");
 		let slashrEntityAbstractFactory = require("./slashrEntityAbstractFactory");
