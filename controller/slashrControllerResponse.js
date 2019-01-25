@@ -6,6 +6,7 @@ module.exports = class slashrControllerResponse{
 		};
 	}
 	async send(){
-		this._metadata.response.send(this._metadata.result.getResponseData());
+		if(this._metadata.result.handleResponse) this._metadata.result.handleResponse(this._metadata.response);
+		else this._metadata.response.send(this._metadata.result.getResponseData());
 	}
 }

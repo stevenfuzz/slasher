@@ -172,13 +172,12 @@ module.exports = class slashrTempFile extends slashrFile{
 		let utils = global.slashr.utils();
 		let nTmpPath = this._getDefaultTempPath();
 
-		console.log("delete tmp path",nTmpPath);
 		if(await utils.file.dirExists(nTmpPath)){
-			if(await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
+			if(! await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
 		}
 		nTmpPath =  this._getDefaultMetadataTempPath();
 		if(await utils.file.dirExists(nTmpPath)){
-			if(await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
+			if(! await utils.file.unlink(nTmpPath)) throw("Unable to delete uploaded file. Could not delete '{nTmpPath}'.");
 		}
 		this._metadata.file = {}
 		this._metadata.isInitialized = false;

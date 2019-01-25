@@ -26,7 +26,16 @@ module.exports = class slashrStorage{
 		// Get the file url
 		this._metadata.url = false;
 		if(options.url){
-			this._metadata.url  = options.url;
+			if(typeof options.url === 'object'){
+				this._metadata.url = {
+					file: options.url.file || "",
+					image: options.url.image || ""
+				};
+			}
+			else this._metadata.url = {
+				file: options.url, 
+				image: ""
+			};
 			delete options.url;
 		}
 		
@@ -129,7 +138,11 @@ module.exports = class slashrStorage{
 	}
 	getFileUrlByKey(key){
 		if(! key) return null;
-		return this._metadata.url+this.getFileRelativePath(key);
+		return this._metadata.url.file+this.getFileRelativePath(key);
+	}
+	getImageUrlByKey(key){
+		if(! key) return null;
+		return `${this._metadata.url.image}${key}`;
 	}
 	getFileRelativePath(id, ext){
 		if(! id) return null;
@@ -152,6 +165,7 @@ module.exports = class slashrStorage{
 	}
 	decodeFileKey(key){
 		let base64url = require("base64url");
+		console.log("key key key",key);
 		let utils = global.slashr.utils();
 		return JSON.parse(base64url.decode(key));
 	}

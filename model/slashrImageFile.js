@@ -36,12 +36,21 @@ module.exports = class slashrImageFile extends slashrFile{
 			let size = await utils.file.size(tmpPath);
 			
 			// TODO: Fix this so it doesn't eat membory
+			console.log("SET MIME TYPE...",metadata.format);
 			this.setSize(size);
-			this.setMimeType(utils.file.getMimeTypeByExtension(metadata.format));
+			if(! this.getMimeType()) this.setMimeType(utils.file.getMimeTypeByExtension(metadata.format));
 			//this.setExtension(metadata.format);
 			
 		}
 		await super.save(options);
+	}
+
+	async pipe(outputStream){
+		return new Promise((resolve, reject) => {
+			let stream = this._metadata.image.pipe(outputStream)
+			stream.once('error', reject);
+			stream.once('finish', resolve);
+		});
 	}
 	
 	_isImageInitialized(){
@@ -64,6 +73,8 @@ module.exports = class slashrImageFile extends slashrFile{
 	 * 
 	 */
 	async scale(w = 0, h = 0, options = {}){
+		w = (w!==null && !isNaN(w)) ? parseInt(w) : null;
+		h = (h!==null && !isNaN(h)) ? parseInt(h) : null;
 		if(! h && ! w) throw("Unable to resize image, either height or width should be given.");
 		//if(! this._isImageInitialized()) await this._initImage();
 		this._metadata.image.resize(w, h, options);

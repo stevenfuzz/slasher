@@ -41,14 +41,25 @@ module.exports = class slashrControllerActionResultModelAbstractFactory{
 							return rslt;
 						};
 						break;
-//					case "redirect":
-//					case "rdr":
-//						throw("TODO blrControllerActionResultModelAbstractFactory fwd");
-//						return new slashrRedirectResultModelFactory(obj._metadata.action);
-//	//					return new blrRedirectResultModelFactory($this->action, blr::DEFAULT_VALUE, array(
-//	//						blr::DEFAULT_VALUE => true
-//	//					));
-//						break;
+					case "image":	
+					case "img":
+						let slashrImageResultModel = require("./slashrImageResultModel");
+						return (image = null) => {
+							let rslt = new slashrImageResultModel(controllerAction);
+							if(image) rslt.image = image;
+							return rslt;
+						};
+						break;
+					case "redirect":
+					case "rdr":
+						let slashrRedirectResultModel = require("./slashrRedirectResultModel");
+						return (path = null, status = null) => {
+							let rslt = new slashrRedirectResultModel(controllerAction);
+							if(path) rslt.path = path;
+							if(status) rslt.status = status;
+							return rslt;
+						};
+						break;
 //					case "forward":
 //					case "fwd":
 //						return function(container, controller, action, options){

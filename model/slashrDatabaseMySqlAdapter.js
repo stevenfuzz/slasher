@@ -38,7 +38,7 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 		let bindings = {};
 		let cacheTime = (queryType === "select" && options.cacheTime) ? options.cacheTime : null;
 		// Format the bind values and query
-		console.log(options.bindings);
+		// console.log(options.bindings);
 		if(options.bindings){
 
 			// Sort and reverse incase keys start with the same value
@@ -95,14 +95,14 @@ module.exports = class slashrDatabaseMySqlAdapter extends slashrDatabase{
 			cacheKey = `slashrDatabaseQuery-${md5(JSON.stringify([query,options]))}`;
 			let cRslt = await model.cache.get(cacheKey);
 			if(cRslt){
-				console.log("FOUND QUERY CACHE!!!!!!!", cacheTime, query);
+				//console.log("FOUND QUERY CACHE!!!!!!!", cacheTime, query);
 				let slashrDatabaseQueryResult = require("./slashrDatabaseQueryResult");
 				return new slashrDatabaseQueryResult(cRslt, options);
 			}
 		}
-		console.log("NO QUERY CACHE!!!!!!!");
-		console.log(query);
-		console.log(bindings);
+		// console.log("NO QUERY CACHE!!!!!!!");
+		// console.log(query);
+		// console.log(bindings);
 
 		// Replace bindings with ? and add to ordered array
 		var bindArr = [];

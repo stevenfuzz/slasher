@@ -21,6 +21,9 @@ const slashr = class slashr{
 	static get utils(){
 		return global.slashr.utils();
 	}
+	static get config(){
+		return this._metadata.config;
+	}
 	async run(){
 		const express = require('express');
 		const bodyParser = require('body-parser');
@@ -39,12 +42,15 @@ const slashr = class slashr{
 		let controllerRequest = async (route, req, res) => {
 			return await this.controller.run(route, req, res);
 		};
+		// let imageRequest =  async (route, req, res) => {
+		// 	return await this.controller.image(req, res);
+		// };
 
 		this._metadata.listener = express();
 		// this._metadata.listener.use(express.static(path.join(__dirname, 'build')));
 		
 		// Set up static file server
-		// console.log(this.config.storage);
+		console.log(this.config);
 		//console.log("TODO: Get storage path from config.");
 		this._metadata.listener.use("/files",express.static(global.slashr.config().storage.path,{fallthrough:false}));
 
@@ -97,7 +103,6 @@ const slashr = class slashr{
 		let routes = {}
 		
 		let routeFn = async (req, res, route) => {
-			console.log("REQUEST: ",req.url);
 			if(! route){
 				route = {
 					'controller' : (req.params.controller || "default"),
@@ -116,6 +121,14 @@ const slashr = class slashr{
 			);
 		};
 		
+
+		this._metadata.listener.all('/image/:key', (req, res) => {
+			routeFn(req, res, {
+				controller: "slashrStorage",
+				action : "image",
+			});
+		});
+
 		// Custom Routes
 		for(let controller in routes){
 			for(let action in routes[controller]){

@@ -18,7 +18,12 @@ module.exports = class slashrController{
 
 		// Include the controller
 		let appPath = global.slashr.config().rootDir;
-		let controllerClass = require(appPath+"/controllers/"+actionOptions.controller+"Controller");
+
+		let controllerPath = actionOptions.controller.startsWith("slashr") ?
+			"./controllers/"+actionOptions.controller+"Controller" :
+			appPath+"/controllers/"+actionOptions.controller+"Controller";
+
+		let controllerClass = require(controllerPath);
 		// Add context to the controller class
 		let slashrComponentModel = require("../model/slashrComponentModel");
 		let slashrControllerActionResultModelAbstractFactory = require("./slashrControllerActionResultModelAbstractFactory");

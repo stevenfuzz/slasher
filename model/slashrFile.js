@@ -116,16 +116,14 @@ module.exports = class slashrFile{
 		// TODO This code is pretty hacky
 		if(! this._metadata.file.ext){
 			let tExt = false;
-			if(name){
+			let mimeType = this.getMimeType();
+			tExt = utils.file.getExtensionByMimeType(mimeType);
+			this.setName(this.getName()+"."+tExt);
+			if(! tExt && name){
 				let tParts = name.split(".");
 				if(tParts.length && tParts.length > 1){
 					tExt = tParts[tParts.length - 1];
 				}
-			}
-			let mimeType = this.getMimeType();
-			if(! tExt){
-				tExt = utils.file.getExtensionByMimeType(mimeType);
-				this.setName(this.getName()+"."+tExt);
 			}
 			if(tExt && utils.file.checkExtensionByMimeType(tExt, mimeType)){
 				this._metadata.file.ext = tExt;
@@ -288,6 +286,17 @@ module.exports = class slashrFile{
 
 		return isSuccess;
 	}
+
+	async clearTempFile(){
+		let slashrTempFile = require("./slashrTempFile");
+		if(this._metadata.tmpFile instanceof slashrTempFile){
+			await this._metadata.tmpFile.delete();
+		}
+		// let utils = global.slashr.utils();
+		// let tmpPath = this.getTempPath();
+		// if(! tmpPath) return false;
+		// utils.file.unlink(tmpPath+".tmp");
+	}
 	
 	delete(options = {}){
 		// TODO: How will this work if the file is saved in differant places other than the current instance?
@@ -335,6 +344,9 @@ module.exports = class slashrFile{
 	}
 	getId(){
 		return this._metadata.entity.getId();
+	}
+	get id(){
+		return this.getId();
 	}
 	getKey(){
 		if(this.isNew()) return false;

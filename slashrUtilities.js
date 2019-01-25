@@ -147,6 +147,16 @@ class slashrFileUtilities{
 		});
 	}
 
+	async read(path){
+		let fs = require("fs");
+		return new Promise((resolve, reject) => {
+			fs.readFile(path,function (err, data) {
+				if (err) reject(err);
+				else resolve(data);
+			});
+		});
+	}
+
 	async write(path, content){
 		let fs = require("fs");
 		return new Promise((resolve, reject) => {
